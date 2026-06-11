@@ -22,33 +22,43 @@ async function handleMetaSearch(body, env) {
 }
 
 async function handleOpenAIGenerate(body, env) {
-  const messages = [
-    { role: "system", content: "Eres un experto en Copywriting para Facebook Ads. Responde siempre en formato JSON con llaves 'texto' y 'titulo'. No incluyas markdown, solo el JSON puro." }
-  ];
+  try {
+    const prompt = body.prompt || "Genera un anuncio para este producto.";
+    const messages = [
+      { "role": "system", "content": "Eres un experto en Copywriting para Facebook Ads. Responde siempre en formato JSON con llaves 'texto' y 'titulo'. No incluyas markdown, solo el JSON puro." }
+    ];
 
-  if (body.image) {
-    messages.push({
-      role: "user",
-      content: [
-        { type: "text", text: body.prompt || "Genera un anuncio para este producto." },
-        { type: "image_url", image_url: { url: body.image } }
-      ]
+    if (body.image) {
+      messages.push({
+        "role": "user",
+        "content": [
+          { "type": "text", "text": prompt },
+          { "type": "image_url", "image_url": { "url": body.image } }
+        ]
+      });
+    } else {
+      messages.push({ "role": "user", "content": prompt });
+    }
+
+    const r = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: { "Authorization": `Bearer ${env.OPENAI_API_KEY}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        "model": "gpt-4o-mini",
+        "messages": messages,
+        "max_tokens": 500
+      })
     });
-  } else {
-    messages.push({ role: "user", content: body.prompt });
+    const d = await r.json();
+    if (d.error) {
+      console.error("OpenAI Error:", JSON.stringify(d.error));
+      return new Response(JSON.stringify({ error: d.error.message || "Error de OpenAI" }), { status: 400, headers: { "Content-Type": "application/json" } });
+    }
+    return new Response(JSON.stringify(d), { headers: { "Content-Type": "application/json" } });
+  } catch (e) {
+    console.error("handleOpenAIGenerate exception:", e.message);
+    return new Response(JSON.stringify({ error: e.message }), { status: 500, headers: { "Content-Type": "application/json" } });
   }
-
-  const r = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: { "Authorization": `Bearer ${env.OPENAI_API_KEY}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model: "gpt-4o-mini",
-      messages: messages,
-      max_tokens: 500
-    })
-  });
-  const d = await r.json();
-  return new Response(JSON.stringify(d), { headers: { "Content-Type": "application/json" } });
 }
 
 async function handleGetInsights(body, env) {
@@ -1061,8 +1071,11 @@ function generateHTML(env) {
           })
         });
         const d=await r.json();
-        const content = d.choices[0].message.content.replace(/\\\`\\\`\\\`json|\\\`\\\`\\\`/g, '').trim();
-        const res = JSON.parse(content);
+        if (d.error) throw new Error(d.error);
+        if (!d.choices || !d.choices[0]) throw new Error('No se recibió respuesta de la IA');
+
+        const aiResponse = d.choices[0].message.content.replace(/\\\`\\\`\\\`json|\\\`\\\`\\\`/g, '').trim();
+        const res = JSON.parse(aiResponse);
         pt.value=res.texto || res.text;
         hd.value=res.titulo || res.headline;
       } catch(e){
