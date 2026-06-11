@@ -8,6 +8,12 @@ const FIXED_TEXT = "📲 ¡Escríbenos ahora y recibe tu cotización con promoci
 
 // --- HANDLERS DE API (LOGICA DE NEGOCIO) ---
 
+function getAdAccId(env) {
+  let id = (env.AD_ACCOUNT_ID || "").trim();
+  if (!id) return null;
+  return id.startsWith("act_") ? id : "act_" + id;
+}
+
 async function handleGetAccounts(env) {
   const r = await fetch(`https://graph.facebook.com/${API_VERSION}/me/accounts?access_token=${env.META_ACCESS_TOKEN}&limit=100`);
   const d = await r.json();
@@ -86,7 +92,7 @@ async function handleOpenAIGenerate(body, env) {
 }
 
 async function handleGetInsights(body, env) {
-  const accId = body.id || env.AD_ACCOUNT_ID;
+  const accId = body.id || getAdAccId(env);
   const url = `https://graph.facebook.com/${API_VERSION}/${accId}/insights?level=${body.level}&date_preset=${body.range}&fields=spend,clicks,impressions,reach&access_token=${env.META_ACCESS_TOKEN}`;
   const r = await fetch(url);
   const d = await r.json();
@@ -94,7 +100,9 @@ async function handleGetInsights(body, env) {
 }
 
 async function handleGetActiveCampaigns(env) {
-  const r = await fetch(`https://graph.facebook.com/${API_VERSION}/${env.AD_ACCOUNT_ID}/campaigns?fields=name,status,objective,buying_type&access_token=${env.META_ACCESS_TOKEN}&limit=100`);
+  const accId = getAdAccId(env);
+  if (!accId) return new Response(JSON.stringify({ error: "AD_ACCOUNT_ID no configurada" }), { status: 400 });
+  const r = await fetch(`https://graph.facebook.com/${API_VERSION}/${accId}/campaigns?fields=name,status,objective,buying_type&access_token=${env.META_ACCESS_TOKEN}&limit=100`);
   const d = await r.json();
   return new Response(JSON.stringify(d), { headers: { "Content-Type": "application/json" } });
 }
@@ -116,7 +124,9 @@ async function handleGetAds(body, env) {
 }
 
 async function handleGetCustomAudiences(env) {
-  const url = `https://graph.facebook.com/${API_VERSION}/${env.AD_ACCOUNT_ID}/customaudiences?fields=name,description,approximate_count_lower_bound&access_token=${env.META_ACCESS_TOKEN}`;
+  const accId = getAdAccId(env);
+  if (!accId) return new Response(JSON.stringify({ error: "AD_ACCOUNT_ID no configurada" }), { status: 400 });
+  const url = `https://graph.facebook.com/${API_VERSION}/${accId}/customaudiences?fields=name,description,approximate_count_lower_bound&access_token=${env.META_ACCESS_TOKEN}`;
   const r = await fetch(url);
   const d = await r.json();
   return new Response(JSON.stringify(d), { headers: { "Content-Type": "application/json" } });
@@ -165,9 +175,9 @@ async function handleValidateSetup(env) {
       }
     }
 
-    if (accId) {
-      let fullAccId = accId.startsWith('act_') ? accId : 'act_' + accId;
-      const aRes = await fetch(`https://graph.facebook.com/${API_VERSION}/${fullAccId}?fields=account_status,disable_reason,currency&access_token=${token}`);
+    const finalAccId = getAdAccId(env);
+    if (finalAccId) {
+      const aRes = await fetch(`https://graph.facebook.com/${API_VERSION}/${finalAccId}?fields=account_status,disable_reason,currency&access_token=${token}`);
       const aData = await aRes.json();
       if (aData.error) {
         results.account = { status: 'error', message: aData.error.message };
@@ -211,7 +221,7 @@ async function handleUpdateStatus(body, env) {
 
 async function handleGetFullReport(body, env) {
   try {
-    const acc = env.AD_ACCOUNT_ID;
+    const acc = getAdAccId(env);
     const { start, end } = body;
     const time_range = JSON.stringify({ since: start, until: end });
     const token = env.META_ACCESS_TOKEN;
@@ -279,8 +289,7 @@ async function handleResolveRegions(body, env) {
 async function handleUploadMedia(formData, env) {
   const file = formData.get('file');
   const token = env.META_ACCESS_TOKEN;
-  let acc = env.AD_ACCOUNT_ID;
-  if (acc && !acc.startsWith('act_')) acc = 'act_' + acc;
+  const acc = getAdAccId(env);
 
   console.log(`Iniciando subida de archivo a cuenta ${acc}: ${file.name}`);
 
@@ -320,8 +329,7 @@ async function handleUploadMedia(formData, env) {
 async function handleCreateAdvancedAd(body, env) {
   const config = body.config;
   const token = env.META_ACCESS_TOKEN;
-  let acc = env.AD_ACCOUNT_ID;
-  if (acc && !acc.startsWith('act_')) acc = 'act_' + acc;
+  const acc = getAdAccId(env);
 
   console.log(`[Worker] Iniciando publicación en cuenta: ${acc}`);
 
@@ -607,7 +615,7 @@ function generateHTML(env) {
           <div class="space-y-4">
             <div>
               <label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Seleccionar Campaña</label>
-              <select id="sel-camp" onchange="loadAdSets(this.value)" class="w-full bg-slate-50 border rounded-lg p-3 text-sm font-bold text-slate-700">
+              <select id="sel-camp" onfocus="if(this.options.length <= 1) fetchActiveCampaigns()" onchange="loadAdSets(this.value)" class="w-full bg-slate-50 border rounded-lg p-3 text-sm font-bold text-slate-700">
                 <option value="NEW">+ Crear Nueva Campaña</option>
               </select>
             </div>
@@ -636,7 +644,7 @@ function generateHTML(env) {
           <div class="space-y-4">
             <div>
               <label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Seleccionar Conjunto</label>
-              <select id="sel-adset" onchange="loadAds(this.value)" class="w-full bg-slate-50 border rounded-lg p-3 text-sm font-bold text-slate-700">
+              <select id="sel-adset" onfocus="if(this.options.length <= 1 && document.getElementById('sel-camp').value !== 'NEW') loadAdSets(document.getElementById('sel-camp').value)" onchange="loadAds(this.value)" class="w-full bg-slate-50 border rounded-lg p-3 text-sm font-bold text-slate-700">
                 <option value="NEW">+ Crear Nuevo Conjunto</option>
               </select>
             </div>
@@ -716,7 +724,7 @@ function generateHTML(env) {
           <div class="space-y-4">
             <div>
               <label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Seleccionar Anuncio (Editar)</label>
-              <select id="sel-ad" onchange="loadAdDetails(this.value)" class="w-full bg-slate-50 border rounded-lg p-3 text-sm font-bold text-slate-700">
+              <select id="sel-ad" onfocus="if(this.options.length <= 1 && document.getElementById('sel-adset').value !== 'NEW') loadAds(document.getElementById('sel-adset').value)" onchange="loadAdDetails(this.value)" class="w-full bg-slate-50 border rounded-lg p-3 text-sm font-bold text-slate-700">
                 <option value="NEW">+ Crear Nuevo Anuncio</option>
               </select>
             </div>
@@ -803,9 +811,9 @@ function generateHTML(env) {
       <div class="max-w-xl mx-auto w-full space-y-6">
         <h1 class="text-2xl font-black mb-8 text-slate-800">Configuración</h1>
         <div class="card space-y-4">
-          <div><label class="text-[10px] font-black uppercase text-slate-400">Meta Token</label><input type="password" id="mt" placeholder="Token configurado en Environment..." class="w-full border p-3 rounded-lg bg-slate-50"></div>
-          <div><label class="text-[10px] font-black uppercase text-slate-400">OpenAI Key</label><input type="password" id="ok" placeholder="Key configurada en Environment..." class="w-full border p-3 rounded-lg bg-slate-50"></div>
-          <div><label class="text-[10px] font-black uppercase text-slate-400">Ad Account ID</label><input type="text" id="aa" placeholder="ID configurado en Environment..." class="w-full border p-3 rounded-lg bg-slate-50"></div>
+          <div><label class="text-[10px] font-black uppercase text-slate-400">Meta Token</label><input type="password" id="mt" value="${meta}" placeholder="Token configurado en Environment..." class="w-full border p-3 rounded-lg bg-slate-50"></div>
+          <div><label class="text-[10px] font-black uppercase text-slate-400">OpenAI Key</label><input type="password" id="ok" value="${openai}" placeholder="Key configurada en Environment..." class="w-full border p-3 rounded-lg bg-slate-50"></div>
+          <div><label class="text-[10px] font-black uppercase text-slate-400">Ad Account ID</label><input type="text" id="aa" value="${accId}" placeholder="ID configurado en Environment..." class="w-full border p-3 rounded-lg bg-slate-50"></div>
           <p class="text-[10px] text-slate-400 font-bold uppercase italic">Los valores se toman de las variables de entorno de Cloudflare para mayor seguridad.</p>
           <div class="flex gap-2">
             <button onclick="checkPerms()" class="flex-1 bg-blue-100 text-blue-700 py-4 rounded-xl font-black uppercase tracking-widest text-xs mt-4 border border-blue-200">Verificar Permisos</button>
@@ -837,35 +845,50 @@ function generateHTML(env) {
       document.getElementById('rep-start').value = today;
       document.getElementById('rep-end').value = today;
       document.getElementById('sd').value = today;
+
+      const dl = document.getElementById('dept-list');
+      DEPTS_GT.forEach(dept => {
+        const div = document.createElement('label');
+        div.className = 'flex items-center gap-2 bg-slate-100 p-2 rounded cursor-pointer hover:bg-slate-200 transition';
+        div.innerHTML = \`<input type="checkbox" value="\\\${dept}" class="dept-check"> <span class="text-[10px] font-bold">\\\${dept}</span>\`;
+        dl.appendChild(div);
+      });
+
+      fetchAccounts();
+      fetchActiveCampaigns();
+      fetchCustomAudiences();
+    };
+
+    async function fetchAccounts() {
       try {
         const r=await fetch('/api/get-accounts',{method:'POST'});
         const d=await r.json();
         const s=document.getElementById('pgs');
         s.innerHTML='<option value="">Página de Facebook...</option>';
         if(d.data) d.data.forEach(p=>s.add(new Option(p.name, p.id)));
+      } catch(e) { console.error("Error fetching accounts:", e); }
+    }
 
-    const [r2, r3] = await Promise.all([
-      fetch('/api/get-active-campaigns',{method:'POST'}),
-      fetch('/api/get-custom-audiences',{method:'POST'})
-    ]);
-        const d2=await r2.json();
-    const d3=await r3.json();
-
+    async function fetchActiveCampaigns() {
+      try {
+        const r=await fetch('/api/get-active-campaigns',{method:'POST'});
+        const d=await r.json();
         const sc=document.getElementById('sel-camp');
-        if(d2.data) d2.data.forEach(c=>sc.add(new Option(c.name, c.id)));
+        sc.innerHTML='<option value="NEW">+ Crear Nueva Campaña</option>';
+        if(d.data) d.data.forEach(c=>sc.add(new Option(c.name, c.id)));
+        if(d.error) console.warn("Aviso fetchActiveCampaigns:", d.error);
+      } catch(e) { console.error("Error fetching campaigns:", e); }
+    }
 
+    async function fetchCustomAudiences() {
+      try {
+        const r=await fetch('/api/get-custom-audiences',{method:'POST'});
+        const d=await r.json();
         const sa=document.getElementById('sel-audience');
-        if(d3.data) d3.data.forEach(a=>sa.add(new Option(a.name, a.id)));
-
-        const dl = document.getElementById('dept-list');
-        DEPTS_GT.forEach(dept => {
-          const div = document.createElement('label');
-          div.className = 'flex items-center gap-2 bg-slate-100 p-2 rounded cursor-pointer hover:bg-slate-200 transition';
-          div.innerHTML = \`<input type="checkbox" value="\\\${dept}" class="dept-check"> <span class="text-[10px] font-bold">\\\${dept}</span>\`;
-          dl.appendChild(div);
-        });
-      } catch(e){}
-    };
+        sa.innerHTML='<option value="">+ Crear Público Manual</option>';
+        if(d.data) d.data.forEach(a=>sa.add(new Option(a.name, a.id)));
+      } catch(e) { console.error("Error fetching audiences:", e); }
+    }
 
     async function loadAdSets(campId){
       const s=document.getElementById('sel-adset');
@@ -880,7 +903,8 @@ function generateHTML(env) {
         const r=await fetch('/api/get-adsets',{method:'POST',body:JSON.stringify({campaignId:campId})});
         const d=await r.json();
         if(d.data) d.data.forEach(as=>s.add(new Option(as.name, as.id)));
-      } catch(e){}
+        if(d.error) console.error("Error loadAdSets:", d.error);
+      } catch(e){ console.error("Exception loadAdSets:", e); }
     }
 
     async function loadAds(adsetId){
@@ -896,7 +920,8 @@ function generateHTML(env) {
         const r=await fetch('/api/get-ads',{method:'POST',body:JSON.stringify({adsetId})});
         const d=await r.json();
         if(d.data) d.data.forEach(ad=>s.add(new Option(ad.name, ad.id)));
-      } catch(e){}
+        if(d.error) console.error("Error loadAds:", d.error);
+      } catch(e){ console.error("Exception loadAds:", e); }
     }
 
     async function loadAdDetails(adId){
