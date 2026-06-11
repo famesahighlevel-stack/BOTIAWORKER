@@ -304,7 +304,9 @@ async function handleUploadMedia(formData, env) {
         console.error("Error AdImages:", JSON.stringify(d));
         throw new Error(d.error?.message || "Fallo subida de imagen");
       }
-      const hash = Object.values(d.images)[0].hash;
+      const imgValues = Object.values(d.images);
+      if (imgValues.length === 0) throw new Error("Meta no devolvió el hash de la imagen.");
+      const hash = imgValues[0].hash;
       console.log(`Imagen subida: ${hash}`);
       return new Response(JSON.stringify({ id: hash, type: 'img' }), { headers: { "Content-Type": "application/json" } });
     } else {
@@ -354,6 +356,7 @@ async function handleCreateAdvancedAd(body, env) {
           objective: config.objective,
           buying_type: 'AUCTION',
           status: config.status,
+          special_ad_categories: ['NONE'],
           access_token: token
         })
       });
@@ -382,8 +385,7 @@ async function handleCreateAdvancedAd(body, env) {
         targeting: {
           geo_locations: { countries: ['GT'] },
           age_min: parseInt(config.manualAudience.ageMin) || 18,
-          publisher_platforms: Object.keys(config.platforms).filter(p => config.platforms[p]),
-          targeting_automation: { advantage_audience: 1 } // Captar nuevos clientes / Advantage+
+          publisher_platforms: Object.keys(config.platforms).filter(p => config.platforms[p])
         },
         status: config.status,
         access_token: token
@@ -453,13 +455,17 @@ async function handleCreateAdvancedAd(body, env) {
           message: finalMsg,
           name: config.headline,
           call_to_action: { type: 'MESSAGE_PAGE' },
-          link: `https://facebook.com/${config.pageId}`
+          // Link is mandatory for link_data, even if sending to a page
+          link: "https://facebook.com/" + config.pageId
         };
       } else if (finalMediaType === 'vid') {
         cb.object_story_spec.video_data = {
           video_id: finalMediaId,
           message: finalMsg,
-          call_to_action: { type: 'MESSAGE_PAGE', value: { link: `https://facebook.com/${config.pageId}` } }
+          call_to_action: {
+            type: 'MESSAGE_PAGE',
+            value: { link: "https://facebook.com/" + config.pageId }
+          }
         };
       }
 
@@ -523,7 +529,7 @@ async function handleCreateAdvancedAd(body, env) {
         body: JSON.stringify({
           name: config.adName,
           creative: creativeId ? { creative_id: creativeId } : undefined,
-          status: config.status,
+          status: config.status || 'PAUSED',
           access_token: token
         })
       });
@@ -542,7 +548,9 @@ async function handleCreateAdvancedAd(body, env) {
           name: config.adName,
           adset_id: adSetId,
           creative: { creative_id: creativeId },
-          status: config.status,
+          status: config.status || 'PAUSED',
+          // Note: multi_advertiser_ads_enabled is often inside creative spec or handled automatically in v19+
+          // Placing it here for compatibility as an ad-level spec if supported
           degrees_of_freedom_spec: { multi_advertiser_ads_enabled: true },
           access_token: token
         })
@@ -870,14 +878,25 @@ function generateHTML(env) {
     }
 
     async function fetchActiveCampaigns() {
+      const sc=document.getElementById('sel-camp');
+      const old = sc.innerHTML;
+      sc.innerHTML = '<option value="">Cargando campañas...</option>';
       try {
         const r=await fetch('/api/get-active-campaigns',{method:'POST'});
         const d=await r.json();
-        const sc=document.getElementById('sel-camp');
         sc.innerHTML='<option value="NEW">+ Crear Nueva Campaña</option>';
-        if(d.data) d.data.forEach(c=>sc.add(new Option(c.name, c.id)));
-        if(d.error) console.warn("Aviso fetchActiveCampaigns:", d.error);
-      } catch(e) { console.error("Error fetching campaigns:", e); }
+        if(d.data && d.data.length > 0) {
+          d.data.forEach(c=>sc.add(new Option(c.name, c.id)));
+        } else if(d.error) {
+          console.warn("Aviso fetchActiveCampaigns:", d.error);
+          alert("Error cargando campañas: " + d.error);
+        } else {
+          console.log("No se encontraron campañas activas.");
+        }
+      } catch(e) {
+        console.error("Error fetching campaigns:", e);
+        sc.innerHTML = old;
+      }
     }
 
     async function fetchCustomAudiences() {
@@ -892,16 +911,19 @@ function generateHTML(env) {
 
     async function loadAdSets(campId){
       const s=document.getElementById('sel-adset');
-      s.innerHTML='<option value="NEW">+ Crear Nuevo Conjunto</option>';
       const campConfig = document.getElementById('camp-new-config');
-      if(campId === "NEW") {
-        campConfig.classList.remove('hidden');
+      if(campId === "NEW" || !campId) {
+        s.innerHTML='<option value="NEW">+ Crear Nuevo Conjunto</option>';
+        if(campId === "NEW") campConfig.classList.remove('hidden');
+        else campConfig.classList.add('hidden');
         return;
       }
       campConfig.classList.add('hidden');
+      s.innerHTML='<option value="">Cargando conjuntos...</option>';
       try {
         const r=await fetch('/api/get-adsets',{method:'POST',body:JSON.stringify({campaignId:campId})});
         const d=await r.json();
+        s.innerHTML='<option value="NEW">+ Crear Nuevo Conjunto</option>';
         if(d.data) d.data.forEach(as=>s.add(new Option(as.name, as.id)));
         if(d.error) console.error("Error loadAdSets:", d.error);
       } catch(e){ console.error("Exception loadAdSets:", e); }
@@ -909,16 +931,19 @@ function generateHTML(env) {
 
     async function loadAds(adsetId){
       const s=document.getElementById('sel-ad');
-      s.innerHTML='<option value="NEW">+ Crear Nuevo Anuncio</option>';
       const adsetConfig = document.getElementById('adset-new-config');
-      if(adsetId === "NEW") {
-        adsetConfig.classList.remove('hidden');
+      if(adsetId === "NEW" || !adsetId) {
+        s.innerHTML='<option value="NEW">+ Crear Nuevo Anuncio</option>';
+        if(adsetId === "NEW") adsetConfig.classList.remove('hidden');
+        else adsetConfig.classList.add('hidden');
         return;
       }
       adsetConfig.classList.add('hidden');
+      s.innerHTML='<option value="">Cargando anuncios...</option>';
       try {
         const r=await fetch('/api/get-ads',{method:'POST',body:JSON.stringify({adsetId})});
         const d=await r.json();
+        s.innerHTML='<option value="NEW">+ Crear Nuevo Anuncio</option>';
         if(d.data) d.data.forEach(ad=>s.add(new Option(ad.name, ad.id)));
         if(d.error) console.error("Error loadAds:", d.error);
       } catch(e){ console.error("Exception loadAds:", e); }
