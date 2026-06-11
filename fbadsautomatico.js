@@ -591,12 +591,20 @@ function generateHTML(env) {
     .step-num { position: absolute; left: -1rem; top: 1.5rem; width: 2rem; height: 2rem; background: #2563eb; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: 2px solid white; z-index: 10; }
   </style>
 </head>
-<body class="bg-slate-50 flex h-screen overflow-hidden font-sans">
-  <nav class="w-64 bg-[#0f172a] text-white flex flex-col justify-between py-8 shrink-0 relative z-20 shadow-xl">
+<body class="bg-slate-50 flex h-screen overflow-hidden font-sans relative">
+  <!-- Mobile Overlay -->
+  <div id="side-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden transition-opacity"></div>
+
+  <nav id="sidebar" class="fixed lg:static inset-y-0 left-0 w-64 bg-[#0f172a] text-white flex flex-col justify-between py-8 shrink-0 z-50 shadow-xl transition-transform -translate-x-full lg:translate-x-0">
     <div>
-      <div class="px-8 mb-12 flex items-center gap-2">
-        <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center font-black">M</div>
-        <h1 class="text-xl font-black tracking-tighter uppercase">Meta Expert</h1>
+      <div class="px-8 mb-12 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center font-black">M</div>
+          <h1 class="text-xl font-black tracking-tighter uppercase">Meta Expert</h1>
+        </div>
+        <button onclick="toggleSidebar()" class="lg:hidden p-1 hover:bg-slate-800 rounded">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
       </div>
       <div class="space-y-1">
         <button id="nav-dash" onclick="tab('dash')" class="w-full px-8 py-3 flex items-center gap-3 text-slate-400 hover:bg-slate-800 transition">
@@ -614,8 +622,19 @@ function generateHTML(env) {
   </nav>
 
   <main class="flex-1 flex flex-col overflow-hidden relative z-10">
+    <!-- Mobile Header -->
+    <header class="lg:hidden bg-[#0f172a] text-white p-4 flex items-center justify-between shadow-lg">
+      <div class="flex items-center gap-3">
+        <button onclick="toggleSidebar()" class="p-2 hover:bg-slate-800 rounded-lg">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/></svg>
+        </button>
+        <span class="font-black uppercase tracking-tighter text-sm">Meta Expert</span>
+      </div>
+      <div id="mobile-tab-title" class="text-[10px] font-bold text-blue-400 uppercase">Crear Anuncio</div>
+    </header>
+
     <!-- TAB CREAR -->
-    <div id="tab-create" class="flex-1 flex overflow-hidden p-8 gap-8">
+    <div id="tab-create" class="flex-1 flex flex-col lg:flex-row overflow-hidden p-4 lg:p-8 gap-4 lg:gap-8">
       <div class="flex-1 overflow-y-auto space-y-6 pb-20 px-4">
         <div class="card relative">
           <div class="step-num">1</div>
@@ -779,8 +798,8 @@ function generateHTML(env) {
         </div>
       </div>
 
-      <div class="w-80 flex flex-col gap-6 shrink-0">
-        <div class="card flex-1 overflow-y-auto space-y-4 shadow-xl">
+      <div class="w-full lg:w-80 flex flex-col gap-6 shrink-0">
+        <div class="card flex-1 lg:overflow-y-auto space-y-4 shadow-xl">
           <div id="dropzone" onclick="document.getElementById('fi').click()" class="border-2 border-dashed border-slate-200 rounded-2xl p-6 flex flex-col items-center justify-center text-slate-400 hover:border-blue-400 cursor-pointer aspect-square bg-slate-50 group transition">
             <svg class="w-12 h-12 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
             <span class="text-xs font-black uppercase">Sube Imagen o Video</span>
@@ -796,9 +815,9 @@ function generateHTML(env) {
     </div>
 
     <!-- TAB DASHBOARD -->
-    <div id="tab-dash" class="hidden flex-1 flex flex-col p-8 overflow-y-auto">
+    <div id="tab-dash" class="hidden flex-1 flex flex-col p-4 lg:p-8 overflow-y-auto">
       <div class="max-w-6xl mx-auto w-full">
-        <div class="flex justify-between items-center mb-8">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
           <h1 class="text-2xl font-black text-slate-800 flex items-center gap-3"><div class="w-2 h-8 bg-blue-600 rounded-full"></div>Centro de Reportes</h1>
           <div class="flex gap-2 items-center">
             <input type="date" id="rep-start" class="bg-white border rounded-lg p-2 text-xs font-bold">
@@ -815,7 +834,7 @@ function generateHTML(env) {
     </div>
 
     <!-- TAB CONFIG -->
-    <div id="tab-config" class="hidden flex-1 flex flex-col p-8 overflow-y-auto">
+    <div id="tab-config" class="hidden flex-1 flex flex-col p-4 lg:p-8 overflow-y-auto">
       <div class="max-w-xl mx-auto w-full space-y-6">
         <h1 class="text-2xl font-black mb-8 text-slate-800">Configuración</h1>
         <div class="card space-y-4">
@@ -1000,6 +1019,28 @@ function generateHTML(env) {
       if(target) target.classList.remove('hidden');
       const targetNav = document.getElementById('nav-'+t);
       if(targetNav) targetNav.classList.add('active-tab');
+
+      // Update mobile title
+      const titles = { 'dash': 'Reportes', 'create': 'Crear Anuncio', 'config': 'API Config' };
+      const mTitle = document.getElementById('mobile-tab-title');
+      if(mTitle) mTitle.innerText = titles[t] || '';
+
+      // Close sidebar on mobile after selection
+      if(window.innerWidth < 1024) toggleSidebar(false);
+    }
+
+    function toggleSidebar(force) {
+      const sb = document.getElementById('sidebar');
+      const ov = document.getElementById('side-overlay');
+      const isOpen = typeof force === 'boolean' ? !force : sb.classList.contains('translate-x-0');
+
+      if(isOpen) {
+        sb.classList.replace('translate-x-0', '-translate-x-full');
+        ov.classList.add('hidden');
+      } else {
+        sb.classList.replace('-translate-x-full', 'translate-x-0');
+        ov.classList.remove('hidden');
+      }
     }
 
     async function toggleStatus(id, currentStatus){
@@ -1081,26 +1122,34 @@ function generateHTML(env) {
               const admsgs = adins.actions?.find(a => a.action_type === 'onsite_conversion.messaging_first_reply') || { value:0 };
 
               const adDiv = document.createElement('div');
-              adDiv.className = 'flex items-center justify-between bg-slate-50 p-2 rounded-lg ml-4';
+              adDiv.className = 'bg-slate-50 p-4 rounded-xl ml-4 mb-4 border border-slate-100 shadow-sm';
               adDiv.innerHTML = \`
-                <div class="flex items-center gap-3">
-                  <img src="\${ad.creative?.thumbnail_url || ''}" class="w-10 h-10 rounded bg-slate-200 object-cover">
-                  <div>
-                    <p class="text-[10px] font-bold text-slate-700">\${ad.name}</p>
-                    <div class="flex items-center gap-2">
-                      <div class="w-1.5 h-1.5 rounded-full \${ad.status === 'ACTIVE' ? 'bg-emerald-500' : 'bg-slate-300'}"></div>
-                      <span class="text-[9px] font-bold text-slate-400 uppercase">\${ad.status}</span>
+                <div class="flex flex-col md:flex-row gap-6">
+                  <div class="shrink-0 flex justify-center">
+                    <img src="\${ad.creative?.thumbnail_url || ''}" class="w-48 h-48 rounded-lg bg-slate-200 object-cover shadow-inner border border-white">
+                  </div>
+                  <div class="flex-1 flex flex-col justify-between">
+                    <div>
+                      <div class="flex items-center gap-2 mb-2">
+                        <div class="w-2 h-2 rounded-full \${ad.status === 'ACTIVE' ? 'bg-emerald-500' : 'bg-slate-300'}"></div>
+                        <span class="text-[10px] font-black uppercase text-slate-400 tracking-widest">\${ad.status}</span>
+                      </div>
+                      <p class="text-lg font-black text-slate-800 leading-tight mb-4">\${ad.name}</p>
+
+                      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-white p-3 rounded-lg border border-slate-100">
+                        <div><p class="text-[9px] font-black text-slate-400 uppercase">Gasto</p><p class="font-bold text-slate-700">$\${parseFloat(adins.spend).toFixed(2)}</p></div>
+                        <div><p class="text-[9px] font-black text-slate-400 uppercase">Mensajes</p><p class="font-bold text-blue-600">\${admsgs.value}</p></div>
+                        <div><p class="text-[9px] font-black text-slate-400 uppercase">Imp</p><p class="font-bold text-slate-700">\${adins.impressions}</p></div>
+                        <div><p class="text-[9px] font-black text-slate-400 uppercase">Alcance</p><p class="font-bold text-slate-700">\${adins.reach}</p></div>
+                      </div>
+                    </div>
+
+                    <div class="flex justify-end mt-4">
+                      <button onclick="toggleStatus('\${ad.id}', '\${ad.status}')" class="flex items-center gap-2 px-6 py-2 rounded-lg font-bold text-xs uppercase tracking-widest transition \${ad.status === 'ACTIVE' ? 'bg-red-50 text-red-600 hover:bg-red-100' : 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100'}">
+                        \${ad.status === 'ACTIVE' ? 'Pausar' : 'Activar'}
+                      </button>
                     </div>
                   </div>
-                </div>
-                <div class="flex gap-4 text-right items-center">
-                  <div class="text-[10px] font-bold text-slate-500">
-                    <p>$\${parseFloat(adins.spend).toFixed(2)} | \${adins.impressions} Imp | \${adins.reach} Alc</p>
-                    <p class="text-blue-500">\${admsgs.value} MSGs</p>
-                  </div>
-                  <button onclick="toggleStatus('\${ad.id}', '\${ad.status}')" class="p-1 \${ad.status === 'ACTIVE' ? 'text-red-500' : 'text-emerald-500'} hover:bg-white rounded transition">
-                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path></svg>
-                  </button>
                 </div>
               \`;
               adsGrid.appendChild(adDiv);
