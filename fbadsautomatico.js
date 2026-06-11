@@ -23,41 +23,53 @@ async function handleMetaSearch(body, env) {
 
 async function handleOpenAIGenerate(body, env) {
   try {
-    const prompt = body.prompt || "Genera un anuncio para este producto.";
-    const messages = [
+    const userPrompt = body.prompt || "Genera un anuncio para este producto.";
+    const aiMessages = [
       { "role": "system", "content": "Eres un experto en Copywriting para Facebook Ads. Responde siempre en formato JSON con llaves 'texto' y 'titulo'. No incluyas markdown, solo el JSON puro." }
     ];
 
     if (body.image) {
-      messages.push({
+      aiMessages.push({
         "role": "user",
         "content": [
-          { "type": "text", "text": prompt },
+          { "type": "text", "text": userPrompt },
           { "type": "image_url", "image_url": { "url": body.image } }
         ]
       });
     } else {
-      messages.push({ "role": "user", "content": prompt });
+      aiMessages.push({ "role": "user", "content": userPrompt });
     }
 
-    const r = await fetch("https://api.openai.com/v1/chat/completions", {
+    const openAiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
-      headers: { "Authorization": `Bearer ${env.OPENAI_API_KEY}`, "Content-Type": "application/json" },
+      headers: {
+        "Authorization": "Bearer " + env.OPENAI_API_KEY,
+        "Content-Type": "application/json"
+      },
       body: JSON.stringify({
         "model": "gpt-4o-mini",
-        "messages": messages,
+        "messages": aiMessages,
         "max_tokens": 500
       })
     });
-    const d = await r.json();
-    if (d.error) {
-      console.error("OpenAI Error:", JSON.stringify(d.error));
-      return new Response(JSON.stringify({ error: d.error.message || "Error de OpenAI" }), { status: 400, headers: { "Content-Type": "application/json" } });
+
+    const openAiData = await openAiResponse.json();
+    if (openAiData.error) {
+      console.error("OpenAI Error:", JSON.stringify(openAiData.error));
+      return new Response(JSON.stringify({ error: openAiData.error.message || "Error de OpenAI" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" }
+      });
     }
-    return new Response(JSON.stringify(d), { headers: { "Content-Type": "application/json" } });
+    return new Response(JSON.stringify(openAiData), {
+      headers: { "Content-Type": "application/json" }
+    });
   } catch (e) {
     console.error("handleOpenAIGenerate exception:", e.message);
-    return new Response(JSON.stringify({ error: e.message }), { status: 500, headers: { "Content-Type": "application/json" } });
+    return new Response(JSON.stringify({ error: e.message }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" }
+    });
   }
 }
 
