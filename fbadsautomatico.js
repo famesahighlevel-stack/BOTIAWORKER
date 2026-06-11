@@ -229,7 +229,7 @@ async function handleGetFullReport(body, env) {
     // We split the request into 3 flatter calls to avoid "reduce amount of data" errors from Meta
     const campUrl = `https://graph.facebook.com/${API_VERSION}/${acc}/campaigns?fields=name,status,insights.time_range(${time_range}){spend,impressions,reach,actions}&access_token=${token}&limit=100`;
     const asUrl = `https://graph.facebook.com/${API_VERSION}/${acc}/adsets?fields=name,status,campaign_id,insights.time_range(${time_range}){spend,impressions,reach,actions}&access_token=${token}&limit=150`;
-    const adUrl = `https://graph.facebook.com/${API_VERSION}/${acc}/ads?fields=name,status,adset_id,creative{thumbnail_url},insights.time_range(${time_range}){spend,impressions,reach,actions}&access_token=${token}&limit=300`;
+    const adUrl = `https://graph.facebook.com/${API_VERSION}/${acc}/ads?fields=name,status,adset_id,creative{image_url,thumbnail_url},insights.time_range(${time_range}){spend,impressions,reach,actions}&access_token=${token}&limit=300`;
 
     const [campRes, asRes, adRes] = await Promise.all([
       fetch(campUrl),
@@ -800,7 +800,7 @@ function generateHTML(env) {
 
       <div class="w-full lg:w-80 flex flex-col gap-6 shrink-0">
         <div class="card flex-1 lg:overflow-y-auto space-y-4 shadow-xl">
-          <div id="dropzone" onclick="document.getElementById('fi').click()" class="border-2 border-dashed border-slate-200 rounded-2xl p-6 flex flex-col items-center justify-center text-slate-400 hover:border-blue-400 cursor-pointer aspect-square bg-slate-50 group transition">
+          <div id="dropzone" onclick="document.getElementById('fi').click()" class="border-2 border-dashed border-slate-200 rounded-2xl p-6 flex flex-col items-center justify-center text-slate-400 hover:border-blue-400 cursor-pointer aspect-square max-w-[200px] sm:max-w-none mx-auto w-full bg-slate-50 group transition">
             <svg class="w-12 h-12 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
             <span class="text-xs font-black uppercase">Sube Imagen o Video</span>
             <input type="file" id="fi" class="hidden" onchange="preview(this)">
@@ -1000,12 +1000,19 @@ function generateHTML(env) {
         }
 
         // Load Templates
+        const st = document.getElementById('sel-template');
+        st.innerHTML = '<option value="">Cargando plantillas...</option>';
         const r2 = await fetch('/api/get-message-templates', {method:'POST', body:JSON.stringify({pageId})});
         const d2 = await r2.json();
-        const st = document.getElementById('sel-template');
         st.innerHTML = '<option value="NEW">+ Crear Nueva Plantilla</option>';
-        if(d2.data) d2.data.forEach(t=>st.add(new Option(t.name, t.id)));
-      } catch(e){}
+        if(d2.data && d2.data.length > 0) {
+          d2.data.forEach(t=>st.add(new Option(t.name, t.id)));
+        }
+        // Force trigger change to ensure 'hidden' logic runs
+        st.dispatchEvent(new Event('change'));
+      } catch(e){
+        console.error("Error updating page details:", e);
+      }
     }
 
     function tab(t){
@@ -1126,7 +1133,7 @@ function generateHTML(env) {
               adDiv.innerHTML = \`
                 <div class="flex flex-col md:flex-row gap-6">
                   <div class="shrink-0 flex justify-center">
-                    <img src="\${ad.creative?.thumbnail_url || ''}" class="w-48 h-48 rounded-lg bg-slate-200 object-cover shadow-inner border border-white">
+                    <img src="\${ad.creative?.image_url || ad.creative?.thumbnail_url || ''}" class="w-48 h-48 rounded-lg bg-slate-200 object-cover shadow-inner border border-white">
                   </div>
                   <div class="flex-1 flex flex-col justify-between">
                     <div>
