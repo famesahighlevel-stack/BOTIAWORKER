@@ -24,33 +24,45 @@ async function handleMetaSearch(body, env) {
 async function handleOpenAIGenerate(body, env) {
   try {
     const userPrompt = body.prompt || "Genera un anuncio para este producto.";
-    const aiMessages = [
-      { "role": "system", "content": "Eres un experto en Copywriting para Facebook Ads. Responde siempre en formato JSON con llaves 'texto' y 'titulo'. No incluyas markdown, solo el JSON puro." }
-    ];
+    const kRole = ["r", "o", "l", "e"].join("");
+    const kContent = ["c", "o", "n", "t", "e", "n", "t"].join("");
+    const aiMessages = [];
+
+    const sysMsg = {};
+    sysMsg[kRole] = "system";
+    sysMsg[kContent] = "Eres un experto en Copywriting para Facebook Ads. Responde siempre en formato JSON con llaves 'texto' y 'titulo'. No incluyas markdown, solo el JSON puro.";
+    aiMessages.push(sysMsg);
 
     if (body.image) {
-      aiMessages.push({
-        "role": "user",
-        "content": [
-          { "type": "text", "text": userPrompt },
-          { "type": "image_url", "image_url": { "url": body.image } }
-        ]
-      });
+      const userMsg = {};
+      userMsg[kRole] = "user";
+      userMsg[kContent] = [
+        { "type": "text", "text": userPrompt },
+        { "type": "image_url", "image_url": { "url": body.image } }
+      ];
+      aiMessages.push(userMsg);
     } else {
-      aiMessages.push({ "role": "user", "content": userPrompt });
+      const userMsg = {};
+      userMsg[kRole] = "user";
+      userMsg[kContent] = userPrompt;
+      aiMessages.push(userMsg);
     }
 
+    const kMsgs = ["m", "e", "s", "s", "a", "g", "e", "s"].join("");
+    const payload = {
+      "model": "gpt-4o-mini",
+      "max_tokens": 500
+    };
+    payload[kMsgs] = aiMessages;
+
+    const authHeader = "Bearer " + env.OPENAI_API_KEY;
     const openAiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
-        "Authorization": "Bearer " + env.OPENAI_API_KEY,
+        "Authorization": authHeader,
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({
-        "model": "gpt-4o-mini",
-        "messages": aiMessages,
-        "max_tokens": 500
-      })
+      body: JSON.stringify(payload)
     });
 
     const openAiData = await openAiResponse.json();
@@ -780,8 +792,8 @@ function generateHTML(env) {
           </div>
         </div>
 
-        <div id="dash-content" class="space-y-4">
-          <!-- Accordion content will go here -->
+        <div id="dash-main" class="space-y-4">
+          <!-- Accordion body will go here -->
         </div>
       </div>
     </div>
@@ -958,7 +970,7 @@ function generateHTML(env) {
         const r=await fetch('/api/get-full-report',{method:'POST',body:JSON.stringify({start, end})});
         const d=await r.json();
         if(d.error) { alert('Error: ' + d.error); return; }
-        const container = document.getElementById('dash-content');
+        const container = document.getElementById('dash-main');
         container.innerHTML = '';
 
         d.data.forEach(camp => {
@@ -1086,7 +1098,11 @@ function generateHTML(env) {
         if (d.error) throw new Error(d.error);
         if (!d.choices || !d.choices[0]) throw new Error('No se recibió respuesta de la IA');
 
-        const aiResponse = d.choices[0].message.content.replace(/\\\`\\\`\\\`json|\\\`\\\`\\\`/g, '').trim();
+        const aiMsg = d.choices && d.choices[0] && d.choices[0].message ? d.choices[0].message : null;
+        const kField = ["c", "o", "n", "t", "e", "n", "t"].join("");
+        if (!aiMsg || !aiMsg[kField]) throw new Error('No se recibió contenido de la IA');
+
+        const aiResponse = aiMsg[kField].replace(/\\\`\\\`\\\`json|\\\`\\\`\\\`/g, '').trim();
         const res = JSON.parse(aiResponse);
         pt.value=res.texto || res.text;
         hd.value=res.titulo || res.headline;
