@@ -785,7 +785,7 @@ function generateHTML(env) {
 
               <div class="space-y-2">
                 <label class="text-[10px] font-bold text-slate-400 uppercase block">Conversaciones (Plantilla)</label>
-                <select id="sel-template" onchange="this.value === 'NEW' ? document.getElementById('new-template-config').classList.remove('hidden') : document.getElementById('new-template-config').classList.add('hidden')" class="w-full bg-slate-50 border rounded-lg p-3 text-sm font-bold text-slate-700">
+                <select id="sel-template" onfocus="if(this.options.length <= 1) updatePageDetails(document.getElementById('pgs').value)" onchange="initTemplateUI()" class="w-full bg-slate-50 border rounded-lg p-3 text-sm font-bold text-slate-700">
                   <option value="NEW">+ Crear Nueva Plantilla</option>
                 </select>
                 <div id="new-template-config" class="space-y-4 border-t pt-4 hidden">
@@ -800,7 +800,7 @@ function generateHTML(env) {
 
       <div class="w-full lg:w-80 flex flex-col gap-6 shrink-0">
         <div class="card flex-1 lg:overflow-y-auto space-y-4 shadow-xl">
-          <div id="dropzone" onclick="document.getElementById('fi').click()" class="border-2 border-dashed border-slate-200 rounded-2xl p-6 flex flex-col items-center justify-center text-slate-400 hover:border-blue-400 cursor-pointer aspect-square max-w-[200px] sm:max-w-none mx-auto w-full bg-slate-50 group transition">
+          <div id="dropzone" onclick="document.getElementById('fi').click()" class="border-2 border-dashed border-slate-200 rounded-2xl p-6 flex flex-col items-center justify-center text-slate-400 hover:border-blue-400 cursor-pointer aspect-square max-w-[120px] sm:max-w-none mx-auto w-full bg-slate-50 group transition">
             <svg class="w-12 h-12 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
             <span class="text-xs font-black uppercase">Sube Imagen o Video</span>
             <input type="file" id="fi" class="hidden" onchange="preview(this)">
@@ -810,7 +810,7 @@ function generateHTML(env) {
           <input type="text" id="hd" placeholder="Título del Anuncio" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none text-sm font-medium">
           <select class="w-full bg-slate-100 border-none rounded-xl p-3 outline-none text-sm font-bold text-slate-600"><option>Enviar Mensaje</option></select>
         </div>
-        <button onclick="go()" id="btn-go" class="w-full bg-blue-600 text-white rounded-2xl py-5 font-black text-lg shadow-xl shadow-blue-300 hover:bg-blue-700 transition uppercase tracking-widest">Lanzar Ahora</button>
+        <button onclick="launchAd()" id="btn-go" class="w-full bg-blue-600 text-white rounded-2xl py-5 font-black text-lg shadow-xl shadow-blue-300 hover:bg-blue-700 transition uppercase tracking-widest">Lanzar Ahora</button>
       </div>
     </div>
 
@@ -864,6 +864,11 @@ function generateHTML(env) {
   </div>
 
   <script>
+    window.onerror = function(msg, url, line, col, error) {
+      alert("Error en la App: " + msg + "\nLínea: " + line);
+      console.error(error);
+      return false;
+    };
     let locs=[];
     const DEPTS_GT = ["Alta Verapaz", "Baja Verapaz", "Chimaltenango", "Chiquimula", "El Progreso", "Escuintla", "Guatemala", "Huehuetenango", "Izabal", "Jalapa", "Jutiapa", "Petén", "Quetzaltenango", "Quiché", "Retalhuleu", "Sacatepéquez", "San Marcos", "Santa Rosa", "Sololá", "Suchitepéquez", "Totonicapán", "Zacapa"];
 
@@ -1009,7 +1014,7 @@ function generateHTML(env) {
           d2.data.forEach(t=>st.add(new Option(t.name, t.id)));
         }
         // Force trigger change to ensure 'hidden' logic runs
-        st.dispatchEvent(new Event('change'));
+        initTemplateUI();
       } catch(e){
         console.error("Error updating page details:", e);
       }
@@ -1034,6 +1039,16 @@ function generateHTML(env) {
 
       // Close sidebar on mobile after selection
       if(window.innerWidth < 1024) toggleSidebar(false);
+    }
+
+    function initTemplateUI() {
+      const val = document.getElementById('sel-template').value;
+      const config = document.getElementById('new-template-config');
+      if (val === 'NEW') {
+        config.classList.remove('hidden');
+      } else {
+        config.classList.add('hidden');
+      }
     }
 
     function toggleSidebar(force) {
@@ -1221,13 +1236,16 @@ function generateHTML(env) {
     }
 
     function setLdr(msg){
-      document.getElementById('ldr-msg').innerText = msg;
+      const msgEl = document.getElementById('ldr-msg');
+      if (msgEl) msgEl.innerText = msg;
       const log = document.getElementById('ldr-log');
-      const entry = document.createElement('div');
-      entry.className = msg.includes('Error') ? 'text-red-400' : 'text-slate-300';
-      entry.innerHTML = \`<span class="text-white/30 mr-1">\${new Date().toLocaleTimeString()}</span> \${msg}\`;
-      log.appendChild(entry);
-      log.scrollTop = log.scrollHeight;
+      if (log) {
+        const entry = document.createElement('div');
+        entry.className = msg.includes('Error') ? 'text-red-400' : 'text-slate-300';
+        entry.innerHTML = '<span class="text-white/30 mr-1">' + new Date().toLocaleTimeString() + '</span> ' + msg;
+        log.appendChild(entry);
+        log.scrollTop = log.scrollHeight;
+      }
     }
 
     async function checkPerms(){
@@ -1262,116 +1280,117 @@ function generateHTML(env) {
       }
     }
 
-    async function go(){
-      const isNewAd = document.getElementById('sel-ad').value === 'NEW';
-      const f=document.getElementById('fi').files[0];
-      const pageId = document.getElementById('pgs').value;
-
-      if(isNewAd && !f) { alert('Debe subir una imagen o video para un anuncio nuevo.'); return; }
-      if(!pageId) { alert('Seleccione una página emisora.'); return; }
-
-      const ldr = document.getElementById('ldr');
-      const log = document.getElementById('ldr-log');
-      log.innerHTML = '';
-      ldr.classList.remove('hidden');
-
-      setLdr('Verificando acceso a Meta...');
+    async function launchAd(){
       try {
-        const vr = await fetch('/api/check-permissions', {method:'POST'});
-        const vd = await vr.json();
-        if(vd.token?.status === 'error') throw new Error('Token inválido: ' + vd.token.message);
-        setLdr('Acceso validado correctamente.');
-        if(vd.account?.status === 'error') {
-          setLdr('Aviso de Cuenta: ' + vd.account.message);
-          if(!confirm('Aviso de Cuenta: ' + vd.account.message + '\\n¿Desea intentar publicar de todos modos?')) {
-            ldr.classList.add('hidden');
+        const isNewAd = document.getElementById('sel-ad').value === 'NEW';
+        const f=document.getElementById('fi').files[0];
+        const pageId = document.getElementById('pgs').value;
+
+        if(isNewAd && !f) { alert('Debe subir una imagen o video para un anuncio nuevo.'); return; }
+        if(!pageId) { alert('Seleccione una página emisora.'); return; }
+
+        const ldr = document.getElementById('ldr');
+        const log = document.getElementById('ldr-log');
+        log.innerHTML = '';
+        ldr.classList.remove('hidden');
+
+        setLdr('Verificando acceso a Meta...');
+        try {
+          const vr = await fetch('/api/check-permissions', {method:'POST'});
+          const vd = await vr.json();
+          if(vd.token?.status === 'error') throw new Error('Token inválido: ' + vd.token.message);
+          setLdr('Acceso validado correctamente.');
+          if(vd.account?.status === 'error') {
+            setLdr('Aviso de Cuenta: ' + vd.account.message);
+            if(!confirm('Aviso de Cuenta: ' + vd.account.message + '\n¿Desea intentar publicar de todos modos?')) {
+              ldr.classList.add('hidden');
+              return;
+            }
+          }
+        } catch(ve) {
+          setLdr('Error de validación: ' + ve.message);
+          setTimeout(() => ldr.classList.add('hidden'), 3000);
+          return;
+        }
+
+        let resolvedRegions = [];
+        const depts = Array.from(document.querySelectorAll('.dept-check:checked')).map(c => c.value);
+        if(depts.length > 0) {
+          setLdr("Resolviendo " + depts.length + " ubicaciones en Meta...");
+          try {
+            const rr = await fetch('/api/resolve-regions', {method:'POST', body:JSON.stringify({depts})});
+            const rd = await rr.json();
+            resolvedRegions = rd.regions || [];
+            setLdr("Ubicaciones resueltas: " + resolvedRegions.length);
+          } catch(re) {
+            setLdr('Error resolviendo ubicaciones: ' + re.message);
+          }
+        }
+
+        let mediaId = null, mediaType = null;
+        if(f) {
+          setLdr("Subiendo " + f.name + " (" + (f.size/1024/1024).toFixed(2) + "MB)...");
+          try {
+            const mfd = new FormData();
+            mfd.append('file', f);
+            const mr = await fetch('/api/upload-media', {method:'POST', body:mfd});
+            const md = await mr.json();
+            if(md.error) throw new Error(md.error);
+            mediaId = md.id;
+            mediaType = md.type;
+            setLdr("Archivo subido exitosamente ID: " + mediaId);
+          } catch(me) {
+            setLdr('Error subiendo archivo: ' + me.message);
+            setTimeout(() => ldr.classList.add('hidden'), 5000);
             return;
           }
         }
-      } catch(e) {
-        setLdr('Error de validación: ' + e.message);
-        setTimeout(() => ldr.classList.add('hidden'), 3000);
-        return;
-      }
 
-      let resolvedRegions = [];
-      const depts = Array.from(document.querySelectorAll('.dept-check:checked')).map(c => c.value);
-      if(depts.length > 0) {
-        setLdr(\`Resolviendo \${depts.length} ubicaciones en Meta...\`);
-        try {
-          const rr = await fetch('/api/resolve-regions', {method:'POST', body:JSON.stringify({depts})});
-          const rd = await rr.json();
-          resolvedRegions = rd.regions || [];
-          setLdr(\`Ubicaciones resueltas: \${resolvedRegions.length}\`);
-        } catch(e) {
-          setLdr('Error resolviendo ubicaciones: ' + e.message);
-        }
-      }
+        setLdr('Publicando anuncio final en Meta...');
+        const depts_selected = Array.from(document.querySelectorAll('.dept-check:checked')).map(c => c.value);
+        const config={
+          mediaId, mediaType, resolvedRegions,
+          campaignId:document.getElementById('sel-camp').value,
+          campaignName:document.getElementById('cn').value,
+          objective:document.getElementById('ob').value,
 
-      let mediaId = null, mediaType = null;
-      if(f) {
-        setLdr(\`Subiendo \${f.name} (\\\\\\\${(f.size/1024/1024).toFixed(2)}MB)...\`);
-        try {
-          const mfd = new FormData();
-          mfd.append('file', f);
-          const mr = await fetch('/api/upload-media', {method:'POST', body:mfd});
-          const md = await mr.json();
-          if(md.error) throw new Error(md.error);
-          mediaId = md.id;
-          mediaType = md.type;
-          setLdr(\`Archivo subido exitosamente ID: \${mediaId}\`);
-        } catch(e) {
-          setLdr('Error subiendo archivo: ' + e.message);
-          setTimeout(() => ldr.classList.add('hidden'), 5000);
-          return;
-        }
-      }
+          adSetId:document.getElementById('sel-adset').value,
+          adSetName:document.getElementById('asn').value,
+          budgetAmount:document.getElementById('ba').value,
+          startDate:document.getElementById('sd').value,
+          messagingDestinations: {
+            messenger: document.getElementById('dest-msg').checked,
+            instagram: document.getElementById('dest-ig').checked,
+            whatsapp: document.getElementById('dest-wa').checked
+          },
+          audienceId: document.getElementById('sel-audience').value,
+          manualAudience: {
+            depts: depts_selected,
+            ageMin: document.getElementById('ami').value,
+            interests: document.getElementById('adsug').value
+          },
+          platforms: {
+            facebook: document.getElementById('plat-fb').checked,
+            instagram: document.getElementById('plat-ig').checked,
+            audience_network: document.getElementById('plat-an').checked,
+            messenger: document.getElementById('plat-msg').checked
+          },
 
-      setLdr('Publicando anuncio final en Meta...');
-      const depts_selected = Array.from(document.querySelectorAll('.dept-check:checked')).map(c => c.value);
-      const config={
-        mediaId, mediaType, resolvedRegions,
-        campaignId:document.getElementById('sel-camp').value,
-        campaignName:document.getElementById('cn').value,
-        objective:document.getElementById('ob').value,
+          adId: document.getElementById('sel-ad').value,
+          adName: document.getElementById('ad-name').value,
+          pageId: document.getElementById('pgs').value,
+          instagramId: document.getElementById('sel-ig').value,
+          format: document.getElementById('ad-format').value,
+          templateId: document.getElementById('sel-template').value,
+          newTemplate: {
+            text: document.getElementById('tpl-text').value,
+            response: document.getElementById('tpl-res').value
+          },
+          primaryText:document.getElementById('pt').value,
+          headline:document.getElementById('hd').value || document.getElementById('ad-name').value,
+          status:'PAUSED'
+        };
 
-        adSetId:document.getElementById('sel-adset').value,
-        adSetName:document.getElementById('asn').value,
-        budgetAmount:document.getElementById('ba').value,
-        startDate:document.getElementById('sd').value,
-        messagingDestinations: {
-          messenger: document.getElementById('dest-msg').checked,
-          instagram: document.getElementById('dest-ig').checked,
-          whatsapp: document.getElementById('dest-wa').checked
-        },
-        audienceId: document.getElementById('sel-audience').value,
-        manualAudience: {
-          depts: depts_selected,
-          ageMin: document.getElementById('ami').value,
-          interests: document.getElementById('adsug').value
-        },
-        platforms: {
-          facebook: document.getElementById('plat-fb').checked,
-          instagram: document.getElementById('plat-ig').checked,
-          audience_network: document.getElementById('plat-an').checked,
-          messenger: document.getElementById('plat-msg').checked
-        },
-
-        adId: document.getElementById('sel-ad').value,
-        adName: document.getElementById('ad-name').value,
-        pageId: document.getElementById('pgs').value,
-        instagramId: document.getElementById('sel-ig').value,
-        format: document.getElementById('ad-format').value,
-        templateId: document.getElementById('sel-template').value,
-        newTemplate: {
-          text: document.getElementById('tpl-text').value,
-          response: document.getElementById('tpl-res').value
-        },
-        primaryText:document.getElementById('pt').value,
-        headline:document.getElementById('hd').value || document.getElementById('ad-name').value,
-        status:'PAUSED'
-      };
-      try {
         const r=await fetch('/api/create-advanced-ad',{
           method:'POST',
           headers: {'Content-Type': 'application/json'},
@@ -1391,7 +1410,12 @@ function generateHTML(env) {
           setTimeout(() => ldr.classList.add('hidden'), 5000);
           alert('ERROR: ' + res.error);
         }
-      } catch(e){ alert('Error fatal'); } finally { document.getElementById('ldr').classList.add('hidden'); }
+      } catch(e) {
+        console.error("Error fatal en launchAd:", e);
+        alert('Error fatal: ' + e.message);
+        const ldr = document.getElementById('ldr');
+        if(ldr) ldr.classList.add('hidden');
+      }
     }
   </script>
 </body>
