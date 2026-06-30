@@ -84,14 +84,18 @@ export default {
     // =====================================================
     // FECHA HOY (GT)
     // =====================================================
+    // Guatemala está en UTC-6. Para filtrar correctamente en GHL (que usa UTC),
+    // debemos compensar el desfase horario.
     const gtDateStr = new Intl.DateTimeFormat("en-CA", {
       timeZone: "America/Guatemala",
       year: "numeric", month: "2-digit", day: "2-digit"
     }).format(new Date());
 
     const today = gtDateStr;
-    const todayStart = today + "T00:00:00.000Z";
-    const todayEnd = today + "T23:59:59.999Z";
+
+    // GT 00:00:00 = UTC 06:00:00 | GT 23:59:59 = UTC 05:59:59 del día siguiente
+    const todayStart = new Date(`${today}T00:00:00-06:00`).toISOString();
+    const todayEnd = new Date(`${today}T23:59:59-06:00`).toISOString();
 
     // =====================================================
     // CACHE LOGIC
