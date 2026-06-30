@@ -12,12 +12,17 @@ export default {
     // CONFIG: GHL ACCOUNTS
     // =====================================================
     const GHL_ACCOUNTS = [
-      { name: "R1.3", location: "xr5u7XYR7rI3m9JNlJm7", stage: "8577c7cd-5d39-42b4-8edb-ab9bad534119", token: "pit-4f8ddf96-7153-4904-a9a9-8434abf9fd83", field_fv: "zUnROtV5c6XbRM4ijUQ1" },
-      { name: "R2.1", location: "qLHT26aMDEKaZ3jGKF9F", stage: "bea54a62-b0e8-48e6-a64d-8626319602c8", token: "pit-a8703b19-ab78-4354-90b8-ed4ab6bfe56e", field_fv: "2uieal4jZiRz3i32fmdr" },
-      { name: "R1.2", location: "xnCU3r4IN7gVAuZYx5JO", stage: "374add3c-e3c3-4b86-a503-9040c407e4e8", token: "pit-7dade6f9-ef3e-4ffc-b6b6-9cdebd93289e", field_fv: "a2BH3MSK8ohUszAbW1OO" },
-      { name: "R3.1", location: "H3rzWYlQxzBlq3gDRhcC", stage: "e576e613-1682-4266-8bfe-d6f86b32d97c", token: "pit-2f261215-2278-4f05-9205-fc9f9bb52681", field_fv: "Ek5F3WOOOe7X50a60R0O" },
-      { name: "R1.4", location: "iT9FHUMSHYmFeGicxlwJ", stage: "eeaee2fb-518f-4c78-a696-7cf815414c10", token: "pit-404b2e86-443d-46d4-9d89-63da57482598", field_fv: "jnAsOVx6j5wxeCHmz0q6" }
+      { name: "R1.3", location: "xr5u7XYR7rI3m9JNlJm7", stage: "8577c7cd-5d39-42b4-8edb-ab9bad534119", token: "pit-4f8ddf96-7153-4904-a9a9-8434abf9fd83", field_fv: "zUnROtV5c6XbRM4ijUQ1", dv_id: "3poEeFSMyn2tPoCKe0Bl" },
+      { name: "R2.1", location: "qLHT26aMDEKaZ3jGKF9F", stage: "bea54a62-b0e8-48e6-a64d-8626319602c8", token: "pit-a8703b19-ab78-4354-90b8-ed4ab6bfe56e", field_fv: "2uieal4jZiRz3i32fmdr", dv_id: "GlbnwixnmUXj8CnEs9sG" },
+      { name: "R1.2", location: "xnCU3r4IN7gVAuZYx5JO", stage: "374add3c-e3c3-4b86-a503-9040c407e4e8", token: "pit-7dade6f9-ef3e-4ffc-b6b6-9cdebd93289e", field_fv: "a2BH3MSK8ohUszAbW1OO", dv_id: "HUuNkuMdON8KJhm4PtAN" },
+      { name: "R3.1", location: "H3rzWYlQxzBlq3gDRhcC", stage: "e576e613-1682-4266-8bfe-d6f86b32d97c", token: "pit-2f261215-2278-4f05-9205-fc9f9bb52681", field_fv: "Ek5F3WOOOe7X50a60R0O", dv_id: "TO0YPfPJWwaocuiCgbZg" },
+      { name: "R1.4", location: "iT9FHUMSHYmFeGicxlwJ", stage: "eeaee2fb-518f-4c78-a696-7cf815414c10", token: "pit-404b2e86-443d-46d4-9d89-63da57482598", field_fv: "jnAsOVx6j5wxeCHmz0q6", dv_id: "kiuo9rQwFoJDf2cEaUJz" }
     ];
+
+    const VENDEDOR_MAP = {
+      "MARIA RENE SANTA CRUZ COSAJAY": "MARIA SANTACRUZ",
+      "ODILIA NINETTE CALEL CARAU": "ODILIA NINETH CALEL",
+    };
 
     // =====================================================
     // FECHA HOY (GT)
@@ -72,63 +77,54 @@ export default {
       let ghlTotalContactos = 0;
       let ghlStats = [];
 
+      let vendedoraStats = {};
+
       for (const acc of GHL_ACCOUNTS) {
         let accVentasMonto = 0;
         let accVentasCant = 0;
         let accContactos = 0;
 
-        // Opps (Sales) - Implementación básica de paginación para asegurar capturar todo el día
+        // Fetch Users for current account to map IDs to names
+        let userMap = {};
         try {
-          let page = 1;
-          let hasNext = true;
-          while (hasNext && page <= 5) { // Límite razonable de 500 registros para un solo día
-            const oppRes = await fetch("https://services.leadconnectorhq.com/opportunities/search", {
-              method: "POST",
-              headers: { "Authorization": `Bearer ${acc.token}`, "Version": "2023-02-21", "Content-Type": "application/json" },
-              body: JSON.stringify({
-                locationId: acc.location,
-                page,
-                limit: 100,
-                filters: [{
-                  group: "AND",
-                  filters: [
-                    { field: "pipeline_stage_id", operator: "eq", value: acc.stage },
-                    { field: "status", operator: "eq", value: "won" },
-                    { field: `custom_fields.${acc.field_fv}`, operator: "range", value: { gte: todayStart, lte: todayEnd } }
-                  ]
-                }]
-              })
-            });
-            const oppData = await oppRes.json();
-            const opps = oppData.opportunities || [];
-            accVentasMonto += opps.reduce((sum, op) => sum + (Number(op.monetaryValue) || 0), 0);
-            accVentasCant += opps.length;
-            hasNext = opps.length === 100;
-            page++;
-          }
+          const userRes = await fetch(`https://services.leadconnectorhq.com/users/?locationId=${acc.location}`, {
+            headers: { "Authorization": `Bearer ${acc.token}`, "Version": "2021-07-28" }
+          });
+          const userData = await userRes.json();
+          (userData.users || []).forEach(u => {
+            const name = `${u.firstName || ''} ${u.lastName || ''}`.trim() || u.email;
+            userMap[u.id] = VENDEDOR_MAP[name.toUpperCase()] || name;
+          });
+        } catch (e) { console.error(`Error GHL Users ${acc.name}:`, e); }
+
+        // Opps (Sales) - Sin paginación agresiva para evitar límite de 50 subrequests de Workers
+        try {
+          const oppRes = await fetch("https://services.leadconnectorhq.com/opportunities/search", {
+            method: "POST",
+            headers: { "Authorization": `Bearer ${acc.token}`, "Version": "2023-02-21", "Content-Type": "application/json" },
+            body: JSON.stringify({ locationId: acc.location, limit: 100, filters: [{ group: "AND", filters: [{ field: "pipeline_stage_id", operator: "eq", value: acc.stage }, { field: "status", operator: "eq", value: "won" }, { field: `custom_fields.${acc.field_fv}`, operator: "range", value: { gte: todayStart, lte: todayEnd } }] }] })
+          });
+          const oppData = await oppRes.json();
+          (oppData.opportunities || []).forEach(op => {
+            const monto = Number(op.monetaryValue) || 0;
+            accVentasMonto += monto;
+            accVentasCant++;
+            const vName = userMap[op.assignedTo] || "Sin Asignar";
+            if (!vendedoraStats[vName]) vendedoraStats[vName] = { monto: 0, cant: 0 };
+            vendedoraStats[vName].monto += monto;
+            vendedoraStats[vName].cant++;
+          });
         } catch (e) { console.error(`Error GHL Opps ${acc.name}:`, e); }
 
-        // Contacts - Paginación para leads
+        // Contacts
         try {
-          let page = 1;
-          let hasNext = true;
-          while (hasNext && page <= 5) {
-            const conRes = await fetch("https://services.leadconnectorhq.com/contacts/search", {
-              method: "POST",
-              headers: { "Authorization": `Bearer ${acc.token}`, "Version": "2021-07-28", "Content-Type": "application/json" },
-              body: JSON.stringify({
-                locationId: acc.location,
-                page,
-                pageLimit: 100,
-                filters: [{ field: "dateAdded", operator: "range", value: { gt: todayStart, lt: todayEnd } }]
-              })
-            });
-            const conData = await conRes.json();
-            const contacts = conData.contacts || [];
-            accContactos += contacts.length;
-            hasNext = contacts.length === 100;
-            page++;
-          }
+          const conRes = await fetch("https://services.leadconnectorhq.com/contacts/search", {
+            method: "POST",
+            headers: { "Authorization": `Bearer ${acc.token}`, "Version": "2021-07-28", "Content-Type": "application/json" },
+            body: JSON.stringify({ locationId: acc.location, pageLimit: 100, filters: [{ field: "dateAdded", operator: "range", value: { gt: todayStart, lt: todayEnd } }] })
+          });
+          const conData = await conRes.json();
+          accContactos = (conData.contacts || []).length;
         } catch (e) { console.error(`Error GHL Contacts ${acc.name}:`, e); }
 
         ghlTotalVentas += accVentasMonto;
@@ -138,35 +134,68 @@ export default {
       }
 
       // =====================================================
-      // 3. META ADS DATA
+      // 3. META ADS DATA (DETAILED)
       // =====================================================
-      async function getFBData(accountId, fallbackLimit) {
-        let res = { spend: 0, balance: 0, limit: Number(fallbackLimit || 0) };
-        if (!accountId) return res;
+      async function getFBInsights(accountId) {
+        if (!accountId || accountId === "") return [];
+        const cleanId = accountId.toString().startsWith("act_") ? accountId : `act_${accountId}`;
+        const timeRange = JSON.stringify({ "since": today, "until": today });
         try {
-          const [ins, acc, cyc] = await Promise.all([
-            fetch(`https://graph.facebook.com/v23.0/act_${accountId}/insights?fields=spend&time_range={'since':'${today}','until':'${today}'}&access_token=${env.ACCESS_TOKEN}`).then(r => r.json()),
-            fetch(`https://graph.facebook.com/v23.0/act_${accountId}?fields=balance&access_token=${env.ACCESS_TOKEN}`).then(r => r.json()),
-            fetch(`https://graph.facebook.com/v23.0/act_${accountId}?fields=adspaymentcycle&access_token=${env.ACCESS_TOKEN}`).then(r => r.json())
-          ]);
-          res.spend = Number(ins?.data?.[0]?.spend || 0);
-          res.balance = Number(acc.balance || 0) / 100;
-          const threshold = cyc.adspaymentcycle?.data?.[0]?.threshold_amount;
-          if (threshold) res.limit = Number(threshold) / 100;
-        } catch (e) { console.error(`Error FB act_${accountId}:`, e); }
-        return res;
+          const res = await fetch(`https://graph.facebook.com/v23.0/${cleanId}/insights?fields=ad_name,campaign_name,spend,actions&time_range=${encodeURIComponent(timeRange)}&level=ad&limit=500&access_token=${env.ACCESS_TOKEN}`);
+          const data = await res.json();
+          return (data.data || []).map(ins => {
+            const conv = (ins.actions || []).find(a => a.action_type === 'onsite_conversion.messaging_conversation_started_7d')?.value || 0;
+            const matchAnu = ins.ad_name.match(/([A-Z]\d{3,4}[A-Z]\d{3})/i);
+            const matchPrice = ins.ad_name.match(/\.(\d+)/);
+            return {
+              name: ins.ad_name,
+              camp: ins.campaign_name,
+              spend: Number(ins.spend || 0),
+              conv: Number(conv),
+              code: matchAnu ? matchAnu[1] : "N/A",
+              price: matchPrice ? matchPrice[1] : "N/A"
+            };
+          });
+        } catch (e) { console.error(`Error FB Insights ${cleanId}:`, e); return []; }
       }
 
-      const fb1 = await getFBData(env.AD_ACCOUNT_ID, env.LIMITE_Q || 6918);
-      const fb2 = await getFBData(env.AD_ACCOUNT_ID_2, env.LIMITE_USD || 0);
+      async function getFBAccountInfo(accountId, fallbackLimit) {
+        if (!accountId || accountId === "") return { balance: 0, limit: Number(fallbackLimit || 0) };
+        const cleanId = accountId.toString().startsWith("act_") ? accountId : `act_${accountId}`;
+        try {
+          const [acc, cyc] = await Promise.all([
+            fetch(`https://graph.facebook.com/v23.0/${cleanId}?fields=balance&access_token=${env.ACCESS_TOKEN}`).then(r => r.json()),
+            fetch(`https://graph.facebook.com/v23.0/${cleanId}?fields=adspaymentcycle&access_token=${env.ACCESS_TOKEN}`).then(r => r.json())
+          ]);
+          const threshold = cyc.adspaymentcycle?.data?.[0]?.threshold_amount;
+          return {
+            balance: Number(acc.balance || 0) / 100,
+            limit: threshold ? Number(threshold) / 100 : Number(fallbackLimit || 0)
+          };
+        } catch (e) { return { balance: 0, limit: Number(fallbackLimit || 0) }; }
+      }
+
+      const [ads1, ads2, info1, info2] = await Promise.all([
+        getFBInsights(env.AD_ACCOUNT_ID),
+        getFBInsights(env.AD_ACCOUNT_ID_2),
+        getFBAccountInfo(env.AD_ACCOUNT_ID, env.LIMITE_Q || 4500),
+        getFBAccountInfo(env.AD_ACCOUNT_ID_2, env.LIMITE_USD || 0)
+      ]);
+
+      const allAds = [
+        ...ads1.map(a => ({ ...a, spendQ: a.spend })),
+        ...ads2.map(a => ({ ...a, spendQ: a.spend * FX_RATE }))
+      ];
 
       dashboardData = {
         today,
         updatedAt: new Date().toLocaleString("es-GT", { timeZone: "America/Guatemala" }),
         totalVT, totalBOHoy, totalBOAnterior, totalGeneral: totalBOHoy + totalBOAnterior,
         ghlTotalVentas, ghlTotalCantVentas, ghlTotalContactos, ghlStats,
-        fb1,
-        fb2: { spend: fb2.spend * FX_RATE, balance: fb2.balance * FX_RATE, limit: fb2.limit * FX_RATE }
+        vendedoraStats,
+        fb1: { ...info1, spend: ads1.reduce((s, a) => s + a.spend, 0) },
+        fb2: { balance: info2.balance * FX_RATE, limit: info2.limit * FX_RATE, spend: ads2.reduce((s, a) => s + a.spend, 0) * FX_RATE },
+        allAds
       };
 
       if (env.PRODUCTS_DB) {
@@ -204,11 +233,11 @@ export default {
         .section-title { font-size: 18px; font-weight: 700; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
         .section-title i { color: #007bff; }
 
-        .main-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 25px; }
+        .main-grid { display: grid; grid-template-columns: 2.2fr 1fr; gap: 25px; }
         @media (max-width: 1000px) { .main-grid { grid-template-columns: 1fr; } }
 
-        .ghl-table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 15px; overflow: hidden; }
-        .ghl-table th, .ghl-table td { padding: 15px; text-align: left; border-bottom: 1px solid #f0f2f5; }
+        .ghl-table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 15px; overflow: hidden; margin-bottom: 25px; box-shadow: 0 4px 6px rgba(0,0,0,.05); }
+        .ghl-table th, .ghl-table td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #f0f2f5; font-size: 14px; }
         .ghl-table th { background: #f8f9fa; font-weight: 600; color: #65676b; }
 
         .fb-card { background: #fff; padding: 20px; border-radius: 15px; margin-bottom: 20px; }
@@ -246,11 +275,11 @@ export default {
             <table class="ghl-table">
               <thead>
                 <tr>
-                  <th>Canal / Cuenta</th>
-                  <th>Ventas (Cant.)</th>
-                  <th>Monto Ventas</th>
-                  <th>Nuevos Leads</th>
-                  <th>Conv. Leads</th>
+                  <th>Canal</th>
+                  <th>Ventas</th>
+                  <th>Monto</th>
+                  <th>Leads</th>
+                  <th>Conv.</th>
                 </tr>
               </thead>
               <tbody>
@@ -266,7 +295,55 @@ export default {
               </tbody>
             </table>
 
-            <div class="section-title" style="margin-top:30px;">📦 Estado de Pedidos (BO)</div>
+            <div class="section-title">👩‍💼 Ventas por Vendedora (GHL)</div>
+            <table class="ghl-table">
+              <thead>
+                <tr>
+                  <th>Vendedora</th>
+                  <th>Ventas</th>
+                  <th>Monto Total</th>
+                  <th>Promedio</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${Object.entries(dashboardData.vendedoraStats).sort((a,b) => b[1].monto - a[1].monto).map(([name, s]) => `
+                  <tr>
+                    <td><strong>${name}</strong></td>
+                    <td>${s.cant}</td>
+                    <td>Q${money(s.monto)}</td>
+                    <td>Q${money(s.monto / (s.cant || 1))}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+
+            <div class="section-title">📱 Rendimiento por Anuncio (Meta)</div>
+            <div style="max-height: 400px; overflow-y: auto; border-radius: 15px; margin-bottom: 25px;">
+              <table class="ghl-table" style="margin-bottom: 0;">
+                <thead style="position: sticky; top: 0; z-index: 10;">
+                  <tr>
+                    <th>Código</th>
+                    <th>Precio</th>
+                    <th>Gasto (Q)</th>
+                    <th>Msgs</th>
+                    <th>Costo/Msg</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${dashboardData.allAds.sort((a,b) => b.spendQ - a.spendQ).map(ad => `
+                    <tr>
+                      <td><span style="background: #e7f3ff; color: #007bff; padding: 2px 6px; border-radius: 4px; font-weight: 600; font-family: monospace;">${ad.code}</span></td>
+                      <td>Q${ad.price}</td>
+                      <td>Q${money(ad.spendQ)}</td>
+                      <td>${ad.conv}</td>
+                      <td>Q${ad.conv > 0 ? money(ad.spendQ / ad.conv) : '0.00'}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+
+            <div class="section-title">📦 Estado de Pedidos (BO)</div>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
               <div class="card">
                 <div class="label">BO Hoy</div>
