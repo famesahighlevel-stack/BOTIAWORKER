@@ -5,21 +5,68 @@ export default {
     // =====================================================
     const GAS_URL = "https://script.google.com/macros/s/AKfycbwQPiGNy1jQ-dmq-xz1_ZcPxtQJdTqyVptIXnPKzwi53j5SZ30N3gwdkZsGm7raVXF4/exec";
     const FX_RATE = 7.8; // USD to QTZ
-    const CACHE_KEY = "dashboard:cache:v2";
+    const CACHE_KEY = "dashboard:cache:v3";
     const CACHE_TTL = 60; // 1 minute
 
     // =====================================================
-    // CONFIG: GHL ACCOUNTS
+    // CONFIG: GHL ACCOUNTS (STRUCTURE UPDATED)
     // =====================================================
     const GHL_ACCOUNTS = [
-      { name: "R1.3", location: "xr5u7XYR7rI3m9JNlJm7", stage: "8577c7cd-5d39-42b4-8edb-ab9bad534119", token: "pit-4f8ddf96-7153-4904-a9a9-8434abf9fd83", field_fv: "zUnROtV5c6XbRM4ijUQ1", dv_id: "3poEeFSMyn2tPoCKe0Bl", anu_cf: "ampRBMHMXgNhxJMRHl6v", pm_cf: "Os7V8p7EFy94syDxUMAx" },
-      { name: "R2.1", location: "qLHT26aMDEKaZ3jGKF9F", stage: "bea54a62-b0e8-48e6-a64d-8626319602c8", token: "pit-a8703b19-ab78-4354-90b8-ed4ab6bfe56e", field_fv: "2uieal4jZiRz3i32fmdr", dv_id: "GlbnwixnmUXj8CnEs9sG", anu_cf: "y45Yu0N6yovQFgAS6nG3", pm_cf: "n7q6BIlpfvTJm0MBe7VD" },
-      { name: "R1.2", location: "xnCU3r4IN7gVAuZYx5JO", stage: "374add3c-e3c3-4b86-a503-9040c407e4e8", token: "pit-7dade6f9-ef3e-4ffc-b6b6-9cdebd93289e", field_fv: "a2BH3MSK8ohUszAbW1OO", dv_id: "HUuNkuMdON8KJhm4PtAN", anu_cf: "QovmsXeWCad6fFcDchsM", pm_cf: "iIw3cwaAyqt32YwLdAKq" },
-      { name: "R3.1", location: "H3rzWYlQxzBlq3gDRhcC", stage: "e576e613-1682-4266-8bfe-d6f86b32d97c", token: "pit-2f261215-2278-4f05-9205-fc9f9bb52681", field_fv: "Ek5F3WOOOe7X50a60R0O", dv_id: "TO0YPfPJWwaocuiCgbZg", anu_cf: "kRzUfj5Hj43lH6yQdSXh", pm_cf: "m2js5X7kAHgjfBjqQhMI" },
-      { name: "R1.4", location: "iT9FHUMSHYmFeGicxlwJ", stage: "eeaee2fb-518f-4c78-a696-7cf815414c10", token: "pit-404b2e86-443d-46d4-9d89-63da57482598", field_fv: "jnAsOVx6j5wxeCHmz0q6", dv_id: "kiuo9rQwFoJDf2cEaUJz", anu_cf: "dpzuI8cV2N9c85NRH5p4", pm_cf: "LMVWgaR6LDBdqr6K1rPE" },
-      { name: "R3.2", location: "jXN4id73HVqpa75YOR1N", stage: "d94817e9-a7fb-4ea3-bed0-d1f117001825", token: "pit-cfd6cb24-6fee-441d-b01f-415160eb6f7b", field_fv: "xftnXlHb41aDvIx8N26d", dv_id: "JJYIQaDMKpMMekORmcqy", anu_cf: "r8sOhHm5PKNtXv65jSaN", pm_cf: "vphhYZkFfAiaSrgfTiA3" },
-      { name: "R3.3", location: "9rHHeTsNpfJuiUkOoLdM", stage: "59f6eff0-f06b-4f5a-b2ae-21f50ec8af32", token: "pit-51105ced-165a-437d-bf76-37c9ec75f00e", field_fv: "o7giXoy1LK8KMuzH2FNi", dv_id: "DeNNFP4LihWoLaIpG0B2", anu_cf: "IELF1xRsnl1nWvoHBRHY", pm_cf: "uEKcNGLJvv7znfVJb2Z4" },
-      { name: "A103", location: "udqERkGhvW0ME0GRQZeg", stage: "59f6eff0-f06b-4f5a-b2ae-21f50ec8af32", token: "pit-6a7edbaf-876d-4155-9a44-8d84f70e4c4a", field_fv: "o7giXoy1LK8KMuzH2FNi", dv_id: "DeNNFP4LihWoLaIpG0B2", anu_cf: "IELF1xRsnl1nWvoHBRHY", pm_cf: "uEKcNGLJvv7znfVJb2Z4" }
+      {
+        "name": "R1.3",
+        "location_id": "xr5u7XYR7rI3m9JNlJm7",
+        "stage_id": "8577c7cd-5d39-42b4-8edb-ab9bad534119",
+        "custom_field": "zUnROtV5c6XbRM4ijUQ1",
+        "dataventa_id": "3poEeFSMyn2tPoCKe0Bl",
+        "token": "pit-4f8ddf96-7153-4904-a9a9-8434abf9fd83",
+        "secuencia_cf": "jn9YrPWrdPdP8XmPVk0T",
+        "anuncio_cf": "ampRBMHMXgNhxJMRHl6v",
+        "primer_mensaje_cf": "Os7V8p7EFy94syDxUMAx"
+      },
+      {
+        "name": "R2.1",
+        "location_id": "qLHT26aMDEKaZ3jGKF9F",
+        "stage_id": "bea54a62-b0e8-48e6-a64d-8626319602c8",
+        "custom_field": "2uieal4jZiRz3i32fmdr",
+        "dataventa_id": "GlbnwixnmUXj8CnEs9sG",
+        "token": "pit-a8703b19-ab78-4354-90b8-ed4ab6bfe56e",
+        "secuencia_cf": "HHf1OJLjyeqh0xxPf16y",
+        "anuncio_cf": "y45Yu0N6yovQFgAS6nG3",
+        "primer_mensaje_cf": "n7q6BIlpfvTJm0MBe7VD"
+      },
+      {
+        "name": "R1.2",
+        "location_id": "xnCU3r4IN7gVAuZYx5JO",
+        "stage_id": "374add3c-e3c3-4b86-a503-9040c407e4e8",
+        "custom_field": "a2BH3MSK8ohUszAbW1OO",
+        "dataventa_id": "HUuNkuMdON8KJhm4PtAN",
+        "token": "pit-7dade6f9-ef3e-4ffc-b6b6-9cdebd93289e",
+        "secuencia_cf": "2Ttu4OQ9Fk4qovroFPRN",
+        "anuncio_cf": "QovmsXeWCad6fFcDchsM",
+        "primer_mensaje_cf": "iIw3cwaAyqt32YwLdAKq"
+      },
+      {
+        "name": "R3.1",
+        "location_id": "H3rzWYlQxzBlq3gDRhcC",
+        "stage_id": "e576e613-1682-4266-8bfe-d6f86b32d97c",
+        "custom_field": "Ek5F3WOOOe7X50a60R0O",
+        "dataventa_id": "TO0YPfPJWwaocuiCgbZg",
+        "token": "pit-2f261215-2278-4f05-9205-fc9f9bb52681",
+        "secuencia_cf": "jsWRYUovvEYgAKddWPly",
+        "anuncio_cf": "kRzUfj5Hj43lH6yQdSXh",
+        "primer_mensaje_cf": "m2js5X7kAHgjfBjqQhMI"
+      },
+      {
+        "name": "R1.4",
+        "location_id": "iT9FHUMSHYmFeGicxlwJ",
+        "stage_id": "eeaee2fb-518f-4c78-a696-7cf815414c10",
+        "custom_field": "jnAsOVx6j5wxeCHmz0q6",
+        "dataventa_id": "kiuo9rQwFoJDf2cEaUJz",
+        "token": "pit-404b2e86-443d-46d4-9d89-63da57482598",
+        "secuencia_cf": "QfBoKX5vsilncCaDejWU",
+        "anuncio_cf": "dpzuI8cV2N9c85NRH5p4",
+        "primer_mensaje_cf": "LMVWgaR6LDBdqr6K1rPE"
+      }
     ];
 
     const VENDEDOR_MAP = {
@@ -74,7 +121,7 @@ export default {
       const totalBOHoy = bo.filter(r => r.FechaCreado && r.FechaCreado.split("T")[0] === today).reduce((acc, row) => acc + (Number(row.TPedidoQTZ) || 0), 0);
       const totalBOAnterior = bo.filter(r => r.FechaCreado && r.FechaCreado.split("T")[0] < today).reduce((acc, row) => acc + (Number(row.TPedidoQTZ) || 0), 0);
 
-      // 2. META ADS DATA (Fetch early for attribution fallback)
+      // 2. META ADS DATA
       async function getFBInsights(accountId) {
         if (!accountId || accountId === "") return [];
         const cleanId = accountId.toString().startsWith("act_") ? accountId : `act_${accountId}`;
@@ -125,13 +172,11 @@ export default {
       let ghlTotalContactos = 0;
       let ghlStats = [];
       let vendedoraStats = {};
-      let adStats = {}; // { adCode: { monto: 0, cantVentas: 0, msgs: 0, spend: 0, vendedora: "" } }
+      let adStats = {};
       let contactToAd = {};
 
-      // Attribution Fallback: Map account name to its best performing ad code today
       const topAdPerAccount = {};
       allFBAds.forEach(ad => {
-        // Simple mapping: if account name (e.g. R1.3) is in campaign name
         GHL_ACCOUNTS.forEach(acc => {
           if (ad.camp.toUpperCase().includes(acc.name.toUpperCase())) {
             if (!topAdPerAccount[acc.name] || ad.conv > topAdPerAccount[acc.name].conv) {
@@ -149,11 +194,11 @@ export default {
 
         try {
           const [users, contactsRes] = await Promise.all([
-            fetch(`https://services.leadconnectorhq.com/users/?locationId=${acc.location}`, { headers: { "Authorization": `Bearer ${acc.token}`, "Version": "2021-07-28" } }).then(r => r.json()),
+            fetch(`https://services.leadconnectorhq.com/users/?locationId=${acc.location_id}`, { headers: { "Authorization": `Bearer ${acc.token}`, "Version": "2021-07-28" } }).then(r => r.json()),
             fetch("https://services.leadconnectorhq.com/contacts/search", {
               method: "POST",
               headers: { "Authorization": `Bearer ${acc.token}`, "Version": "2021-07-28", "Content-Type": "application/json" },
-              body: JSON.stringify({ locationId: acc.location, pageLimit: 100, filters: [{ field: "dateAdded", operator: "range", value: { gt: todayStart, lt: todayEnd } }] })
+              body: JSON.stringify({ locationId: acc.location_id, pageLimit: 100, filters: [{ field: "dateAdded", operator: "range", value: { gt: todayStart, lt: todayEnd } }] })
             }).then(r => r.json())
           ]);
 
@@ -167,7 +212,7 @@ export default {
           contacts.forEach(c => {
             let adCode = "N/A";
             (c.customFields || []).forEach(cf => {
-              if (cf.id === acc.anu_cf || cf.id === acc.pm_cf) {
+              if (cf.id === acc.anuncio_cf || cf.id === acc.primer_mensaje_cf) {
                 const match = String(cf.value || "").match(/([A-Z]\d{3,4}[A-Z]\d{3})/i);
                 if (match) adCode = match[1].toUpperCase();
               }
@@ -178,7 +223,6 @@ export default {
                  if (match) adCode = match[1].toUpperCase();
                });
             }
-            // Final Fallback: use top ad of account if still N/A
             if (adCode === "N/A" && topAdPerAccount[acc.name]) adCode = topAdPerAccount[acc.name].code;
             contactToAd[c.id] = adCode;
           });
@@ -186,7 +230,7 @@ export default {
           const oppsRes = await fetch("https://services.leadconnectorhq.com/opportunities/search", {
             method: "POST",
             headers: { "Authorization": `Bearer ${acc.token}`, "Version": "2023-02-21", "Content-Type": "application/json" },
-            body: JSON.stringify({ locationId: acc.location, limit: 100, filters: [{ group: "AND", filters: [{ field: "pipeline_stage_id", operator: "eq", value: acc.stage }, { field: "status", operator: "eq", value: "won" }, { field: `custom_fields.${acc.field_fv}`, operator: "range", value: { gte: todayStart, lte: todayEnd } }] }] })
+            body: JSON.stringify({ locationId: acc.location_id, limit: 100, filters: [{ group: "AND", filters: [{ field: "pipeline_stage_id", operator: "eq", value: acc.stage_id }, { field: "status", operator: "eq", value: "won" }, { field: `custom_fields.${acc.custom_field}`, operator: "range", value: { gte: todayStart, lte: todayEnd } }] }] })
           });
           const oppsData = await oppsRes.json();
           (oppsData.opportunities || []).forEach(op => {
@@ -197,7 +241,7 @@ export default {
 
             let adCode = contactToAd[op.contactId] || "N/A";
             if (adCode === "N/A" && op.customFields) {
-              const dv = op.customFields.find(cf => cf.id === acc.dv_id);
+              const dv = op.customFields.find(cf => cf.id === acc.dataventa_id);
               if (dv) {
                 const match = String(dv.value || "").match(/([A-Z]\d{3,4}[A-Z]\d{3})/i);
                 if (match) adCode = match[1].toUpperCase();
@@ -205,15 +249,13 @@ export default {
             }
             if (adCode === "N/A" && topAdPerAccount[acc.name]) adCode = topAdPerAccount[acc.name].code;
 
-            return { monto, vName, adCode };
-          }).forEach(sale => {
-            if (!vendedoraStats[sale.vName]) vendedoraStats[sale.vName] = { monto: 0, cant: 0 };
-            vendedoraStats[sale.vName].monto += sale.monto;
-            vendedoraStats[sale.vName].cant++;
+            if (!vendedoraStats[vName]) vendedoraStats[vName] = { monto: 0, cant: 0 };
+            vendedoraStats[vName].monto += monto;
+            vendedoraStats[vName].cant++;
 
-            if (!adStats[sale.adCode]) adStats[sale.adCode] = { monto: 0, cantVentas: 0, msgs: 0, spend: 0, vendedora: sale.vName };
-            adStats[sale.adCode].monto += sale.monto;
-            adStats[sale.adCode].cantVentas++;
+            if (!adStats[adCode]) adStats[adCode] = { monto: 0, cantVentas: 0, msgs: 0, spend: 0, vendedora: vName };
+            adStats[adCode].monto += monto;
+            adStats[adCode].cantVentas++;
           });
 
         } catch (e) { console.error(`Error GHL ${acc.name}:`, e); }
@@ -228,7 +270,6 @@ export default {
         ghlStats.push(r);
       });
 
-      // Final Ad Statistics Merge
       allFBAds.forEach(a => {
         if (!adStats[a.code]) adStats[a.code] = { monto: 0, cantVentas: 0, msgs: 0, spend: 0, vendedora: "" };
         adStats[a.code].spend += a.spend;
