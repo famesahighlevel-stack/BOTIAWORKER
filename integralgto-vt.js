@@ -5,34 +5,41 @@ export default {
     // =====================================================
     const GAS_URL = "https://script.google.com/macros/s/AKfycbwQPiGNy1jQ-dmq-xz1_ZcPxtQJdTqyVptIXnPKzwi53j5SZ30N3gwdkZsGm7raVXF4/exec";
     const FX_RATE = 7.8; // USD to QTZ
-    const CACHE_KEY = "dashboard:cache:v1";
+    const CACHE_KEY = "dashboard:cache:v2";
     const CACHE_TTL = 60; // 1 minute
 
     // =====================================================
     // CONFIG: GHL ACCOUNTS
     // =====================================================
     const GHL_ACCOUNTS = [
-      { name: "R1.3", location: "xr5u7XYR7rI3m9JNlJm7", stage: "8577c7cd-5d39-42b4-8edb-ab9bad534119", token: "pit-4f8ddf96-7153-4904-a9a9-8434abf9fd83", field_fv: "zUnROtV5c6XbRM4ijUQ1", dv_id: "3poEeFSMyn2tPoCKe0Bl" },
-      { name: "R2.1", location: "qLHT26aMDEKaZ3jGKF9F", stage: "bea54a62-b0e8-48e6-a64d-8626319602c8", token: "pit-a8703b19-ab78-4354-90b8-ed4ab6bfe56e", field_fv: "2uieal4jZiRz3i32fmdr", dv_id: "GlbnwixnmUXj8CnEs9sG" },
-      { name: "R1.2", location: "xnCU3r4IN7gVAuZYx5JO", stage: "374add3c-e3c3-4b86-a503-9040c407e4e8", token: "pit-7dade6f9-ef3e-4ffc-b6b6-9cdebd93289e", field_fv: "a2BH3MSK8ohUszAbW1OO", dv_id: "HUuNkuMdON8KJhm4PtAN" },
-      { name: "R3.1", location: "H3rzWYlQxzBlq3gDRhcC", stage: "e576e613-1682-4266-8bfe-d6f86b32d97c", token: "pit-2f261215-2278-4f05-9205-fc9f9bb52681", field_fv: "Ek5F3WOOOe7X50a60R0O", dv_id: "TO0YPfPJWwaocuiCgbZg" },
-      { name: "R1.4", location: "iT9FHUMSHYmFeGicxlwJ", stage: "eeaee2fb-518f-4c78-a696-7cf815414c10", token: "pit-404b2e86-443d-46d4-9d89-63da57482598", field_fv: "jnAsOVx6j5wxeCHmz0q6", dv_id: "kiuo9rQwFoJDf2cEaUJz" }
+      { name: "R1.3", location: "xr5u7XYR7rI3m9JNlJm7", stage: "8577c7cd-5d39-42b4-8edb-ab9bad534119", token: "pit-4f8ddf96-7153-4904-a9a9-8434abf9fd83", field_fv: "zUnROtV5c6XbRM4ijUQ1", dv_id: "3poEeFSMyn2tPoCKe0Bl", anu_cf: "ampRBMHMXgNhxJMRHl6v", pm_cf: "Os7V8p7EFy94syDxUMAx" },
+      { name: "R2.1", location: "qLHT26aMDEKaZ3jGKF9F", stage: "bea54a62-b0e8-48e6-a64d-8626319602c8", token: "pit-a8703b19-ab78-4354-90b8-ed4ab6bfe56e", field_fv: "2uieal4jZiRz3i32fmdr", dv_id: "GlbnwixnmUXj8CnEs9sG", anu_cf: "y45Yu0N6yovQFgAS6nG3", pm_cf: "n7q6BIlpfvTJm0MBe7VD" },
+      { name: "R1.2", location: "xnCU3r4IN7gVAuZYx5JO", stage: "374add3c-e3c3-4b86-a503-9040c407e4e8", token: "pit-7dade6f9-ef3e-4ffc-b6b6-9cdebd93289e", field_fv: "a2BH3MSK8ohUszAbW1OO", dv_id: "HUuNkuMdON8KJhm4PtAN", anu_cf: "QovmsXeWCad6fFcDchsM", pm_cf: "iIw3cwaAyqt32YwLdAKq" },
+      { name: "R3.1", location: "H3rzWYlQxzBlq3gDRhcC", stage: "e576e613-1682-4266-8bfe-d6f86b32d97c", token: "pit-2f261215-2278-4f05-9205-fc9f9bb52681", field_fv: "Ek5F3WOOOe7X50a60R0O", dv_id: "TO0YPfPJWwaocuiCgbZg", anu_cf: "kRzUfj5Hj43lH6yQdSXh", pm_cf: "m2js5X7kAHgjfBjqQhMI" },
+      { name: "R1.4", location: "iT9FHUMSHYmFeGicxlwJ", stage: "eeaee2fb-518f-4c78-a696-7cf815414c10", token: "pit-404b2e86-443d-46d4-9d89-63da57482598", field_fv: "jnAsOVx6j5wxeCHmz0q6", dv_id: "kiuo9rQwFoJDf2cEaUJz", anu_cf: "dpzuI8cV2N9c85NRH5p4", pm_cf: "LMVWgaR6LDBdqr6K1rPE" },
+      { name: "R3.2", location: "jXN4id73HVqpa75YOR1N", stage: "d94817e9-a7fb-4ea3-bed0-d1f117001825", token: "pit-cfd6cb24-6fee-441d-b01f-415160eb6f7b", field_fv: "xftnXlHb41aDvIx8N26d", dv_id: "JJYIQaDMKpMMekORmcqy", anu_cf: "r8sOhHm5PKNtXv65jSaN", pm_cf: "vphhYZkFfAiaSrgfTiA3" },
+      { name: "R3.3", location: "9rHHeTsNpfJuiUkOoLdM", stage: "59f6eff0-f06b-4f5a-b2ae-21f50ec8af32", token: "pit-51105ced-165a-437d-bf76-37c9ec75f00e", field_fv: "o7giXoy1LK8KMuzH2FNi", dv_id: "DeNNFP4LihWoLaIpG0B2", anu_cf: "IELF1xRsnl1nWvoHBRHY", pm_cf: "uEKcNGLJvv7znfVJb2Z4" },
+      { name: "A103", location: "udqERkGhvW0ME0GRQZeg", stage: "59f6eff0-f06b-4f5a-b2ae-21f50ec8af32", token: "pit-6a7edbaf-876d-4155-9a44-8d84f70e4c4a", field_fv: "o7giXoy1LK8KMuzH2FNi", dv_id: "DeNNFP4LihWoLaIpG0B2", anu_cf: "IELF1xRsnl1nWvoHBRHY", pm_cf: "uEKcNGLJvv7znfVJb2Z4" }
     ];
 
     const VENDEDOR_MAP = {
       "MARIA RENE SANTA CRUZ COSAJAY": "MARIA SANTACRUZ",
       "ODILIA NINETTE CALEL CARAU": "ODILIA NINETH CALEL",
+      "DIEGO SANTA CRUZ": "DIEGO SANTACRUZ"
     };
+
+    const FREELANCE_VENDEDORES = [
+      "BYRON ORTIZ",
+      "ESTHER LOPEZ",
+      "SONIA CHIROY"
+    ];
 
     // =====================================================
     // FECHA HOY (GT)
     // =====================================================
-    // Usamos Intl para obtener la fecha actual en Guatemala (UTC-6)
     const gtDateStr = new Intl.DateTimeFormat("en-CA", {
       timeZone: "America/Guatemala",
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit"
+      year: "numeric", month: "2-digit", day: "2-digit"
     }).format(new Date());
 
     const today = gtDateStr;
@@ -54,9 +61,7 @@ export default {
     }
 
     if (!dashboardData) {
-      // =====================================================
-      // 1. CONSULTA VT / BO (GAS)
-      // =====================================================
+      // 1. GAS DATA
       let vt = [], bo = [];
       try {
         const gasRes = await fetch(GAS_URL + "?ruta=");
@@ -69,73 +74,7 @@ export default {
       const totalBOHoy = bo.filter(r => r.FechaCreado && r.FechaCreado.split("T")[0] === today).reduce((acc, row) => acc + (Number(row.TPedidoQTZ) || 0), 0);
       const totalBOAnterior = bo.filter(r => r.FechaCreado && r.FechaCreado.split("T")[0] < today).reduce((acc, row) => acc + (Number(row.TPedidoQTZ) || 0), 0);
 
-      // =====================================================
-      // 2. CONSULTA GHL (Opps & Contacts)
-      // =====================================================
-      let ghlTotalVentas = 0;
-      let ghlTotalCantVentas = 0;
-      let ghlTotalContactos = 0;
-      let ghlStats = [];
-
-      let vendedoraStats = {};
-
-      for (const acc of GHL_ACCOUNTS) {
-        let accVentasMonto = 0;
-        let accVentasCant = 0;
-        let accContactos = 0;
-
-        // Fetch Users for current account to map IDs to names
-        let userMap = {};
-        try {
-          const userRes = await fetch(`https://services.leadconnectorhq.com/users/?locationId=${acc.location}`, {
-            headers: { "Authorization": `Bearer ${acc.token}`, "Version": "2021-07-28" }
-          });
-          const userData = await userRes.json();
-          (userData.users || []).forEach(u => {
-            const name = `${u.firstName || ''} ${u.lastName || ''}`.trim() || u.email;
-            userMap[u.id] = VENDEDOR_MAP[name.toUpperCase()] || name;
-          });
-        } catch (e) { console.error(`Error GHL Users ${acc.name}:`, e); }
-
-        // Opps (Sales) - Sin paginación agresiva para evitar límite de 50 subrequests de Workers
-        try {
-          const oppRes = await fetch("https://services.leadconnectorhq.com/opportunities/search", {
-            method: "POST",
-            headers: { "Authorization": `Bearer ${acc.token}`, "Version": "2023-02-21", "Content-Type": "application/json" },
-            body: JSON.stringify({ locationId: acc.location, limit: 100, filters: [{ group: "AND", filters: [{ field: "pipeline_stage_id", operator: "eq", value: acc.stage }, { field: "status", operator: "eq", value: "won" }, { field: `custom_fields.${acc.field_fv}`, operator: "range", value: { gte: todayStart, lte: todayEnd } }] }] })
-          });
-          const oppData = await oppRes.json();
-          (oppData.opportunities || []).forEach(op => {
-            const monto = Number(op.monetaryValue) || 0;
-            accVentasMonto += monto;
-            accVentasCant++;
-            const vName = userMap[op.assignedTo] || "Sin Asignar";
-            if (!vendedoraStats[vName]) vendedoraStats[vName] = { monto: 0, cant: 0 };
-            vendedoraStats[vName].monto += monto;
-            vendedoraStats[vName].cant++;
-          });
-        } catch (e) { console.error(`Error GHL Opps ${acc.name}:`, e); }
-
-        // Contacts
-        try {
-          const conRes = await fetch("https://services.leadconnectorhq.com/contacts/search", {
-            method: "POST",
-            headers: { "Authorization": `Bearer ${acc.token}`, "Version": "2021-07-28", "Content-Type": "application/json" },
-            body: JSON.stringify({ locationId: acc.location, pageLimit: 100, filters: [{ field: "dateAdded", operator: "range", value: { gt: todayStart, lt: todayEnd } }] })
-          });
-          const conData = await conRes.json();
-          accContactos = (conData.contacts || []).length;
-        } catch (e) { console.error(`Error GHL Contacts ${acc.name}:`, e); }
-
-        ghlTotalVentas += accVentasMonto;
-        ghlTotalCantVentas += accVentasCant;
-        ghlTotalContactos += accContactos;
-        ghlStats.push({ name: acc.name, ventas: accVentasMonto, cantVentas: accVentasCant, contactos: accContactos });
-      }
-
-      // =====================================================
-      // 3. META ADS DATA (DETAILED)
-      // =====================================================
+      // 2. META ADS DATA (Fetch early for attribution fallback)
       async function getFBInsights(accountId) {
         if (!accountId || accountId === "") return [];
         const cleanId = accountId.toString().startsWith("act_") ? accountId : `act_${accountId}`;
@@ -146,17 +85,12 @@ export default {
           return (data.data || []).map(ins => {
             const conv = (ins.actions || []).find(a => a.action_type === 'onsite_conversion.messaging_conversation_started_7d')?.value || 0;
             const matchAnu = ins.ad_name.match(/([A-Z]\d{3,4}[A-Z]\d{3})/i);
-            const matchPrice = ins.ad_name.match(/\.(\d+)/);
             return {
-              name: ins.ad_name,
-              camp: ins.campaign_name,
-              spend: Number(ins.spend || 0),
-              conv: Number(conv),
-              code: matchAnu ? matchAnu[1] : "N/A",
-              price: matchPrice ? matchPrice[1] : "N/A"
+              name: ins.ad_name, camp: ins.campaign_name, spend: Number(ins.spend || 0),
+              conv: Number(conv), code: matchAnu ? matchAnu[1].toUpperCase() : "N/A"
             };
           });
-        } catch (e) { console.error(`Error FB Insights ${cleanId}:`, e); return []; }
+        } catch (e) { return []; }
       }
 
       async function getFBAccountInfo(accountId, fallbackLimit) {
@@ -182,20 +116,132 @@ export default {
         getFBAccountInfo(env.AD_ACCOUNT_ID_2, env.LIMITE_USD || 0)
       ]);
 
-      const allAds = [
-        ...ads1.map(a => ({ ...a, spendQ: a.spend })),
-        ...ads2.map(a => ({ ...a, spendQ: a.spend * FX_RATE }))
-      ];
+      const allFBAds = [...ads1, ...ads2.map(a => ({...a, spend: a.spend * FX_RATE}))];
+      const totalFBLimit = (Number(env.LIMITE_Q) || info1.limit) + ((Number(env.LIMITE_USD) || info2.limit) * FX_RATE);
+
+      // 3. GHL DATA
+      let ghlTotalVentas = 0;
+      let ghlTotalCantVentas = 0;
+      let ghlTotalContactos = 0;
+      let ghlStats = [];
+      let vendedoraStats = {};
+      let adStats = {}; // { adCode: { monto: 0, cantVentas: 0, msgs: 0, spend: 0, vendedora: "" } }
+      let contactToAd = {};
+
+      // Attribution Fallback: Map account name to its best performing ad code today
+      const topAdPerAccount = {};
+      allFBAds.forEach(ad => {
+        // Simple mapping: if account name (e.g. R1.3) is in campaign name
+        GHL_ACCOUNTS.forEach(acc => {
+          if (ad.camp.toUpperCase().includes(acc.name.toUpperCase())) {
+            if (!topAdPerAccount[acc.name] || ad.conv > topAdPerAccount[acc.name].conv) {
+              topAdPerAccount[acc.name] = ad;
+            }
+          }
+        });
+      });
+
+      const accountResults = await Promise.all(GHL_ACCOUNTS.map(async (acc) => {
+        let accVentasMonto = 0;
+        let accVentasCant = 0;
+        let accContactos = 0;
+        let userMap = {};
+
+        try {
+          const [users, contactsRes] = await Promise.all([
+            fetch(`https://services.leadconnectorhq.com/users/?locationId=${acc.location}`, { headers: { "Authorization": `Bearer ${acc.token}`, "Version": "2021-07-28" } }).then(r => r.json()),
+            fetch("https://services.leadconnectorhq.com/contacts/search", {
+              method: "POST",
+              headers: { "Authorization": `Bearer ${acc.token}`, "Version": "2021-07-28", "Content-Type": "application/json" },
+              body: JSON.stringify({ locationId: acc.location, pageLimit: 100, filters: [{ field: "dateAdded", operator: "range", value: { gt: todayStart, lt: todayEnd } }] })
+            }).then(r => r.json())
+          ]);
+
+          (users.users || []).forEach(u => {
+            const name = `${u.firstName || ''} ${u.lastName || ''}`.trim() || u.email;
+            userMap[u.id] = VENDEDOR_MAP[name.toUpperCase()] || name;
+          });
+
+          const contacts = contactsRes.contacts || [];
+          accContactos = contacts.length;
+          contacts.forEach(c => {
+            let adCode = "N/A";
+            (c.customFields || []).forEach(cf => {
+              if (cf.id === acc.anu_cf || cf.id === acc.pm_cf) {
+                const match = String(cf.value || "").match(/([A-Z]\d{3,4}[A-Z]\d{3})/i);
+                if (match) adCode = match[1].toUpperCase();
+              }
+            });
+            if (adCode === "N/A") {
+               (c.customFields || []).forEach(cf => {
+                 const match = String(cf.value || "").match(/([A-Z]\d{3,4}[A-Z]\d{3})/i);
+                 if (match) adCode = match[1].toUpperCase();
+               });
+            }
+            // Final Fallback: use top ad of account if still N/A
+            if (adCode === "N/A" && topAdPerAccount[acc.name]) adCode = topAdPerAccount[acc.name].code;
+            contactToAd[c.id] = adCode;
+          });
+
+          const oppsRes = await fetch("https://services.leadconnectorhq.com/opportunities/search", {
+            method: "POST",
+            headers: { "Authorization": `Bearer ${acc.token}`, "Version": "2023-02-21", "Content-Type": "application/json" },
+            body: JSON.stringify({ locationId: acc.location, limit: 100, filters: [{ group: "AND", filters: [{ field: "pipeline_stage_id", operator: "eq", value: acc.stage }, { field: "status", operator: "eq", value: "won" }, { field: `custom_fields.${acc.field_fv}`, operator: "range", value: { gte: todayStart, lte: todayEnd } }] }] })
+          });
+          const oppsData = await oppsRes.json();
+          (oppsData.opportunities || []).forEach(op => {
+            const monto = Number(op.monetaryValue) || 0;
+            accVentasMonto += monto;
+            accVentasCant++;
+            const vName = userMap[op.assignedTo] || "Sin Asignar";
+
+            let adCode = contactToAd[op.contactId] || "N/A";
+            if (adCode === "N/A" && op.customFields) {
+              const dv = op.customFields.find(cf => cf.id === acc.dv_id);
+              if (dv) {
+                const match = String(dv.value || "").match(/([A-Z]\d{3,4}[A-Z]\d{3})/i);
+                if (match) adCode = match[1].toUpperCase();
+              }
+            }
+            if (adCode === "N/A" && topAdPerAccount[acc.name]) adCode = topAdPerAccount[acc.name].code;
+
+            return { monto, vName, adCode };
+          }).forEach(sale => {
+            if (!vendedoraStats[sale.vName]) vendedoraStats[sale.vName] = { monto: 0, cant: 0 };
+            vendedoraStats[sale.vName].monto += sale.monto;
+            vendedoraStats[sale.vName].cant++;
+
+            if (!adStats[sale.adCode]) adStats[sale.adCode] = { monto: 0, cantVentas: 0, msgs: 0, spend: 0, vendedora: sale.vName };
+            adStats[sale.adCode].monto += sale.monto;
+            adStats[sale.adCode].cantVentas++;
+          });
+
+        } catch (e) { console.error(`Error GHL ${acc.name}:`, e); }
+
+        return { name: acc.name, ventas: accVentasMonto, cantVentas: accVentasCant, contactos: accContactos };
+      }));
+
+      accountResults.forEach(r => {
+        ghlTotalVentas += r.ventas;
+        ghlTotalCantVentas += r.cantVentas;
+        ghlTotalContactos += r.contactos;
+        ghlStats.push(r);
+      });
+
+      // Final Ad Statistics Merge
+      allFBAds.forEach(a => {
+        if (!adStats[a.code]) adStats[a.code] = { monto: 0, cantVentas: 0, msgs: 0, spend: 0, vendedora: "" };
+        adStats[a.code].spend += a.spend;
+        adStats[a.code].msgs += a.conv;
+      });
 
       dashboardData = {
-        today,
-        updatedAt: new Date().toLocaleString("es-GT", { timeZone: "America/Guatemala" }),
+        today, updatedAt: new Date().toLocaleString("es-GT", { timeZone: "America/Guatemala" }),
         totalVT, totalBOHoy, totalBOAnterior, totalGeneral: totalBOHoy + totalBOAnterior,
         ghlTotalVentas, ghlTotalCantVentas, ghlTotalContactos, ghlStats,
-        vendedoraStats,
+        vendedoraStats, adStats, totalFBLimit,
         fb1: { ...info1, spend: ads1.reduce((s, a) => s + a.spend, 0) },
-        fb2: { balance: info2.balance * FX_RATE, limit: info2.limit * FX_RATE, spend: ads2.reduce((s, a) => s + a.spend, 0) * FX_RATE },
-        allAds
+        fb2: { balance: info2.balance * FX_RATE, limit: info2.limit * FX_RATE, spend: ads2.reduce((s, a) => s + a.spend, 0) * FX_RATE }
       };
 
       if (env.PRODUCTS_DB) {
@@ -203,13 +249,9 @@ export default {
       }
     }
 
-    // Calculations
     const totalFBSpend = dashboardData.fb1.spend + dashboardData.fb2.spend;
     const totalFBBalance = dashboardData.fb1.balance + dashboardData.fb2.balance;
 
-    // =====================================================
-    // HTML
-    // =====================================================
     const html = `
     <!DOCTYPE html>
     <html lang="es">
@@ -224,29 +266,22 @@ export default {
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; background: #fff; padding: 20px; border-radius: 15px; box-shadow: 0 2px 4px rgba(0,0,0,.05); }
         h1 { margin: 0; font-size: 24px; color: #007bff; }
         .btn-refresh { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; }
-
         .grid-6 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
         .card { background: #fff; padding: 20px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,.05); text-align: center; }
         .label { font-size: 13px; color: #65676b; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
         .value { font-size: 22px; font-weight: 700; }
-
-        .section-title { font-size: 18px; font-weight: 700; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
-        .section-title i { color: #007bff; }
-
+        .section-title { font-size: 18px; font-weight: 700; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; margin-top: 25px; }
         .main-grid { display: grid; grid-template-columns: 2.2fr 1fr; gap: 25px; }
         @media (max-width: 1000px) { .main-grid { grid-template-columns: 1fr; } }
-
         .ghl-table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 15px; overflow: hidden; margin-bottom: 25px; box-shadow: 0 4px 6px rgba(0,0,0,.05); }
         .ghl-table th, .ghl-table td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #f0f2f5; font-size: 14px; }
         .ghl-table th { background: #f8f9fa; font-weight: 600; color: #65676b; }
-
         .fb-card { background: #fff; padding: 20px; border-radius: 15px; margin-bottom: 20px; }
         .fb-balance { font-size: 32px; font-weight: 800; color: #007bff; margin: 10px 0; }
         .progress-container { background: #e9ecef; height: 10px; border-radius: 5px; margin: 15px 0; overflow: hidden; }
         .progress-bar { background: #007bff; height: 100%; transition: width 0.3s; }
         .alert { background: #fff3cd; color: #856404; padding: 10px; border-radius: 8px; font-size: 13px; margin-top: 10px; border: 1px solid #ffeeba; }
         .danger { background: #f8d7da; color: #721c24; border-color: #f5c6cb; }
-
         .footer { text-align: center; margin-top: 40px; color: #65676b; font-size: 13px; }
       </style>
     </head>
@@ -273,15 +308,7 @@ export default {
           <div>
             <div class="section-title">📊 Rendimiento por Canal (GHL)</div>
             <table class="ghl-table">
-              <thead>
-                <tr>
-                  <th>Canal</th>
-                  <th>Ventas</th>
-                  <th>Monto</th>
-                  <th>Leads</th>
-                  <th>Conv.</th>
-                </tr>
-              </thead>
+              <thead><tr><th>Canal</th><th>Ventas</th><th>Monto</th><th>Leads</th><th>Conv.</th></tr></thead>
               <tbody>
                 ${dashboardData.ghlStats.map(s => `
                   <tr>
@@ -297,14 +324,7 @@ export default {
 
             <div class="section-title">👩‍💼 Ventas por Vendedora (GHL)</div>
             <table class="ghl-table">
-              <thead>
-                <tr>
-                  <th>Vendedora</th>
-                  <th>Ventas</th>
-                  <th>Monto Total</th>
-                  <th>Promedio</th>
-                </tr>
-              </thead>
+              <thead><tr><th>Vendedora</th><th>Ventas</th><th>Monto Total</th><th>Promedio</th></tr></thead>
               <tbody>
                 ${Object.entries(dashboardData.vendedoraStats).sort((a,b) => b[1].monto - a[1].monto).map(([name, s]) => `
                   <tr>
@@ -317,75 +337,56 @@ export default {
               </tbody>
             </table>
 
-            <div class="section-title">📱 Rendimiento por Anuncio (Meta)</div>
-            <div style="max-height: 400px; overflow-y: auto; border-radius: 15px; margin-bottom: 25px;">
+            <div class="section-title">📱 Rendimiento Detallado por Anuncio (Meta + GHL)</div>
+            <div style="max-height: 500px; overflow-y: auto; border-radius: 15px; margin-bottom: 25px;">
               <table class="ghl-table" style="margin-bottom: 0;">
                 <thead style="position: sticky; top: 0; z-index: 10;">
-                  <tr>
-                    <th>Código</th>
-                    <th>Precio</th>
-                    <th>Gasto (Q)</th>
-                    <th>Msgs</th>
-                    <th>Costo/Msg</th>
-                  </tr>
+                  <tr><th>Código</th><th>Gasto</th><th>Ventas</th><th>Monto</th><th>Msgs</th><th>Asesor</th><th>Peso</th><th>Conv.</th></tr>
                 </thead>
                 <tbody>
-                  ${dashboardData.allAds.sort((a,b) => b.spendQ - a.spendQ).map(ad => `
+                  ${Object.entries(dashboardData.adStats).filter(e => e[0] !== "N/A").sort((a,b) => b[1].spend - a[1].spend).map(([code, s]) => {
+                    const isFreelance = FREELANCE_VENDEDORES.includes((s.vendedora || "").toUpperCase());
+                    const peso = isFreelance ? "0.0%" : ((s.spend / (dashboardData.totalFBLimit || 1)) * 100).toFixed(1) + "%";
+                    return `
                     <tr>
-                      <td><span style="background: #e7f3ff; color: #007bff; padding: 2px 6px; border-radius: 4px; font-weight: 600; font-family: monospace;">${ad.code}</span></td>
-                      <td>Q${ad.price}</td>
-                      <td>Q${money(ad.spendQ)}</td>
-                      <td>${ad.conv}</td>
-                      <td>Q${ad.conv > 0 ? money(ad.spendQ / ad.conv) : '0.00'}</td>
+                      <td><span style="background: #e7f3ff; color: #007bff; padding: 2px 6px; border-radius: 4px; font-weight: 600; font-family: monospace;">${code}</span></td>
+                      <td>Q${money(s.spend)}</td>
+                      <td>${s.cantVentas}</td>
+                      <td>Q${money(s.monto)}</td>
+                      <td>${s.msgs}</td>
+                      <td><small>${s.vendedora || 'N/A'}</small></td>
+                      <td><small>${peso}</small></td>
+                      <td><strong>${s.msgs > 0 ? ((s.cantVentas / s.msgs) * 100).toFixed(1) : 0}%</strong></td>
                     </tr>
-                  `).join('')}
+                  `}).join('')}
                 </tbody>
               </table>
             </div>
 
             <div class="section-title">📦 Estado de Pedidos (BO)</div>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
-              <div class="card">
-                <div class="label">BO Hoy</div>
-                <div class="value">Q${money(dashboardData.totalBOHoy)}</div>
-              </div>
-              <div class="card">
-                <div class="label">BO Acumulado Anterior</div>
-                <div class="value">Q${money(dashboardData.totalBOAnterior)}</div>
-              </div>
+              <div class="card"><div class="label">BO Hoy</div><div class="value">Q${money(dashboardData.totalBOHoy)}</div></div>
+              <div class="card"><div class="label">BO Acumulado Anterior</div><div class="value">Q${money(dashboardData.totalBOAnterior)}</div></div>
             </div>
           </div>
 
           <div>
             <div class="section-title">💳 Control de Pagos Meta</div>
-
-            <!-- CUENTA Q -->
             <div class="fb-card">
               <div class="label">Cuenta Quetzales (Q)</div>
               <div class="fb-balance">Q${money(dashboardData.fb1.balance)}</div>
-              <div style="font-size:12px; color:#65676b">Límite de Facturación: Q${money(dashboardData.fb1.limit)}</div>
-              <div class="progress-container">
-                <div class="progress-bar" style="width: ${Math.min((dashboardData.fb1.balance / (dashboardData.fb1.limit || 1)) * 100, 100)}%; background: ${dashboardData.fb1.balance >= dashboardData.fb1.limit ? '#dc3545' : '#007bff'}"></div>
-              </div>
-              ${dashboardData.fb1.balance >= dashboardData.fb1.limit ? '<div class="alert danger">⚠️ LÍMITE ALCANZADO O EXCEDIDO</div>' : '<div class="alert">Próximo cobro al llegar al límite.</div>'}
+              <div style="font-size:12px; color:#65676b">Límite: Q${money(dashboardData.fb1.limit)}</div>
+              <div class="progress-container"><div class="progress-bar" style="width: ${Math.min((dashboardData.fb1.balance / (dashboardData.fb1.limit || 1)) * 100, 100)}%; background: ${dashboardData.fb1.balance >= dashboardData.fb1.limit ? '#dc3545' : '#007bff'}"></div></div>
             </div>
-
-            <!-- CUENTA USD -->
             <div class="fb-card">
               <div class="label">Cuenta Dólares ($ -> Q)</div>
               <div class="fb-balance">Q${money(dashboardData.fb2.balance)}</div>
               <div style="font-size:12px; color:#65676b">Límite: Q${money(dashboardData.fb2.limit)}</div>
-              <div class="progress-container">
-                <div class="progress-bar" style="width: ${Math.min((dashboardData.fb2.balance / (dashboardData.fb2.limit || 1)) * 100, 100)}%; background: ${dashboardData.fb2.balance >= dashboardData.fb2.limit ? '#dc3545' : '#007bff'}"></div>
-              </div>
-              ${dashboardData.fb2.balance >= dashboardData.fb2.limit ? '<div class="alert danger">⚠️ LÍMITE ALCANZADO O EXCEDIDO</div>' : '<div class="alert">Cifras convertidas a QTZ para control unificado.</div>'}
+              <div class="progress-container"><div class="progress-bar" style="width: ${Math.min((dashboardData.fb2.balance / (dashboardData.fb2.limit || 1)) * 100, 100)}%; background: ${dashboardData.fb2.balance >= dashboardData.fb2.limit ? '#dc3545' : '#007bff'}"></div></div>
             </div>
           </div>
         </div>
-
-        <div class="footer">
-          Integralgto VT System &copy; ${new Date().getFullYear()} | Datos en Tiempo Real
-        </div>
+        <div class="footer">Integralgto VT System &copy; ${new Date().getFullYear()} | Datos en Tiempo Real</div>
       </div>
     </body>
     </html>
